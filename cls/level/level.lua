@@ -10,6 +10,8 @@ local tile = {
     WALL_TOP    = 5,
     WALL_SIDE   = 6,
     FAKE_WALL   = 7,
+    FLOOR_DEBUG = 8,
+    WALL_DEBUG  = 9,
 }
 
 function level.generate(options)
@@ -51,6 +53,10 @@ function level:draw()
                 love.graphics.setColor(0.4, 0.4, 0.4)
             elseif t == tile.WALL_SIDE then
                 love.graphics.setColor(0.3, 0.3, 0.3)
+            elseif t == tile.WALL_DEBUG then
+                love.graphics.setColor(0.4, 0.4, 0.2)
+            elseif t == tile.FLOOR_DEBUG then
+                love.graphics.setColor(0.8, 0.8, 0.5)
             else 
                 love.graphics.setColor(1, 0, 0)
             end
