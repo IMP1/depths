@@ -10,7 +10,8 @@ function love.load()
         min_height = 24,
         max_width  = 32,
         max_height = 32,
-    })    
+        seed = os.time(),
+    })
 end
 
 function love.keypressed(key)
