@@ -60,7 +60,7 @@ function level:draw()
             else 
                 love.graphics.setColor(1, 0, 0)
             end
-            local s = 16
+            local s = 1
             love.graphics.rectangle("fill", (i-1) * s, (j-1) * s, s, s)
         end
     end
