@@ -14,12 +14,13 @@ local tile = {
     WALL_DEBUG  = 9,
 }
 
+level.tile = tile
+
 function level.generate(options)
     local thread = love.thread.newThread("cls/level/generator.lua")
     love.thread.getChannel("level-gen"):clear()
     thread:start()
     love.thread.getChannel("level-gen"):supply(options)
-    love.thread.getChannel("level-gen"):supply(tile)
     return thread
 end
 

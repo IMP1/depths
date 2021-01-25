@@ -1,5 +1,8 @@
 local options = love.thread.getChannel("level-gen"):demand()
-local tile = love.thread.getChannel("level-gen"):demand()
+
+local mst = require('lib.minimum_spanning_tree')
+
+local tile = require('cls.level.level').tile
 
 local seed = options.seed or os.time()
 math.randomseed(seed)
@@ -36,7 +39,6 @@ function gen.generate()
     level.enemies = {}
     level.treasure = {}
     level.rooms = {}
-    level.merged_rooms = {}
     level.hidden_rooms = {}
     level.auto_tiles = {}
     level.start_position = {}
@@ -78,6 +80,13 @@ function gen.is_floor(level, x, y)
     return t == tile.FLOOR or t == tile.FLOOR_START or t == tile.FLOOR_END or t == tile.FLOOR_BOSS or t == tile.FLOOR_DEBUG
 end
 
+function gen.is_in_room(x, y, room)
+   return x >= room.x and 
+          x <= room.x + room.width and 
+          y >= room.y and 
+          y <= room.y + room.height
+end
+
 function gen.room_overlap(room1, room2)
     if (room1.x > room2.x + room2.width or room2.x > room1.x + room1.width) then
         return false
@@ -86,11 +95,6 @@ function gen.room_overlap(room1, room2)
         return false
     end
     return true
-
-    -- return room1.x <  room2.x + room2.width  and 
-    --        room2.x <= room1.x + room1.width  and
-    --        room1.y >  room2.y + room2.height and 
-    --        room2.y >= room1.y + room1.height
 end
 
 function gen.set_tile(level, x, y, tile_type, ...)
@@ -192,8 +196,7 @@ function gen.add_rooms(level)
         if math.random() < no_room_prob then tile_type = tile.WALL_TOP end
         gen.add_random_room(level, w, h, tile_type)
     end
-    -- Add corridor rooms
-        gen.update_status("Adding corridors...")
+    -- Add long 'corridor' rooms
     for i = 1, 3 do
         local w = 8 + math.floor(math.random() * 2)
         local h = 1
@@ -262,168 +265,105 @@ function gen.add_room(level, x, y, width, height, floor_type, wall_type)
 end
 
 function gen.join_rooms(level)
-    gen.remove_single_cell_rooms(level)
-    gen.merge_connected_rooms(level)
+    local passage_edges = gen.random_spanning_tree(level)
+    -- TODO: Create passages following edges of MST(s)
     -- gen.create_passages(level)
-    -- IDEA: Create a graph from rooms. Touching & overlapping rooms have connections of 0 length.
-    --       All other rooms that could have a passage between them get a random length.
-    --       And then use a minimum spanning tree algorithm to join the rooms and create passages.
-    --       https://en.wikipedia.org/wiki/Minimum_spanning_tree
-    -- IDEA: Maybe do the above twice and make both sets of passages? For a bit of looping and more randomness
 end
 
-function gen.remove_single_cell_rooms(level)
-    for j, row in pairs(level.tiles) do
-        for i, t in pairs(row) do
-            local surrounded = not gen.is_floor(level, i-1, j) and not gen.is_floor(level, i+1, j) and 
-                               not gen.is_floor(level, i, j-1) and not gen.is_floor(level, i, j+1)
-            if gen.is_floor(level, i, j) and surrounded then
-                gen.set_tile(level, i, j, tile.WALL_TOP)
+function gen.random_spanning_tree(level)
+    local graph = gen.create_room_graph(level)
+    local passage_edges = {}
+    for i = 1, math.floor(math.random() * 2) + 1 do
+        for _, edge in pairs(graph[2]) do
+            edge.length = math.random()
+        end
+        local mst = gen.minimum_spanning_tree(graph)
+        for _, edge in pairs(mst) do
+            table.insert(passage_edges)
+        end
+    end
+end
+
+function gen.create_room_graph(level)
+    local nodes = {}
+    local edges = {}
+
+    for room_index, room in pairs(level.rooms) do
+        table.insert(nodes, room)
+        local nearest_rooms_east = {}
+        do
+            local i = room.x + room.width + 1
+            for j = room.y, room.y + room.height do
+                local nearest = gen.find_nearest_room_index(level, i, j, 1, 0)
+                if nearest then
+                    if not nearest_rooms_east[nearest] then
+                        nearest_rooms_east[nearest] = {}
+                    end
+                    table.insert(nearest_rooms_east[nearest], j)
+                end
             end
         end
-    end
-end
-
-function gen.merge_connected_rooms(level)
-    local rooms = {unpack(level.rooms)}
-    for _, room in pairs(rooms) do
-
-    end
-end
-
-function gen.create_passages(level)
-    gen.update_status("Joining rooms...")
-    for j, row in pairs(level.tiles) do
-        for i, t in pairs(row) do
-            local wall_square = gen.is_wall(level, i, j) and not gen.is_exit(level, i, j) and
-                                gen.is_wall(level, i+1, j) and not gen.is_exit(level, i+1, j) and 
-                                gen.is_wall(level, i, j+1) and not gen.is_exit(level, i, j+1) and 
-                                gen.is_wall(level, i+1, j+1) and not gen.is_exit(level, i+1, j+1)
-            local passage_horz = gen.is_floor(level, i-1, j) and gen.is_floor(level, i+2, j) and
-                                 gen.is_floor(level, i-1, j+1) and gen.is_floor(level, i+2, j+1)
-            local passage_vert = gen.is_floor(level, i, j-1) and gen.is_floor(level, i, j+2) and
-                                 gen.is_floor(level, i+1, j-1) and gen.is_floor(level, i+1, j+2)
-            if wall_square and (passage_horz or passage_vert) then
-                gen.set_tile(level, i, j, tile.FLOOR)
-                gen.set_tile(level, i+1, j, tile.FLOOR)
-                gen.set_tile(level, i, j+1, tile.FLOOR)
-                gen.set_tile(level, i+1, j+1, tile.FLOOR)
+        local nearest_rooms_south = {}
+        do
+            local j = room.y + room.height + 1
+            for i = room.x, room.x + room.width do
+                local nearest = gen.find_nearest_room_index(level, i, j, 0, 1)
+                if nearest then
+                    if not nearest_rooms_south[nearest] then
+                        nearest_rooms_south[nearest] = {}
+                    end
+                    table.insert(nearest_rooms_south[nearest], i)
+                end
             end
         end
-    end
-    for j, row in pairs(level.tiles) do
-        for i, t in pairs(row) do
-            local passage_horz = gen.is_wall(level, i, j) and gen.is_wall(level, i, j-1) and gen.is_wall(level, i, j+1) and
-                                 gen.is_wall(level, i+1, j) and gen.is_wall(level, i+1, j-1) and gen.is_wall(level, i+1, j+1) and
-                                 gen.is_floor(level, i-1, j) and gen.is_floor(level, i+2, j) and (
-                                    gen.is_wall(level, i-1, j-1) and gen.is_wall(level, i-1, j+1) or
-                                    gen.is_wall(level, i+2, j-1) and gen.is_wall(level, i+2, j+1) or
-                                    gen.is_wall(level, i-1, j-1) and gen.is_wall(level, i+2, j+1) or
-                                    gen.is_wall(level, i+2, j-1) and gen.is_wall(level, i-1, j+1)
-                                )
-            if passage_horz then
-                gen.set_tile(level, i, j, tile.FLOOR)
-                gen.set_tile(level, i+1, j, tile.FLOOR)
-            end
+        -- print("Room connections:", room.x, room.y)
+        -- print("To east:")
+        for k, v in pairs(nearest_rooms_east) do
+            local adj_room = level.rooms[k]
+            local length = adj_room.x - (room.x + room.width)
+            local x = room.x + room.width + 1
+            local y = v[math.floor(math.random() * #v) + 1]
+            table.insert(edges, {source = room_index, target = k, pos = {x, y}, dir = {1, 0}, length = length})
+            table.insert(edges, {source = k, target = room_index, pos = {x, y}, dir = {1, 0}, length = length})
+            -- print(adj_room.x, adj_room.y)
+            -- print(unpack(v))
         end
-    end
-    for j, row in pairs(level.tiles) do
-        for i, t in pairs(row) do
-            local passage_vert = gen.is_wall(level, i, j) and gen.is_wall(level, i-1, j) and gen.is_wall(level, i+1, j) and
-                                 gen.is_wall(level, i, j+1) and gen.is_wall(level, i-1, j+1) and gen.is_wall(level, i+1, j+1) and
-                                 gen.is_floor(level, i, j-1) and gen.is_floor(level, i, j+2) and (
-                                    gen.is_wall(level, i-1, j-1) and gen.is_wall(level, i+1, j-1) or
-                                    gen.is_wall(level, i-1, j+2) and gen.is_wall(level, i+1, j+2) or
-                                    gen.is_wall(level, i-1, j-1) and gen.is_wall(level, i+1, j+2) or
-                                    gen.is_wall(level, i-1, j+2) and gen.is_wall(level, i+1, j-1)
-                                )
-            if passage_vert then
-                gen.set_tile(level, i, j, tile.FLOOR)
-                gen.set_tile(level, i, j+1, tile.FLOOR)
-            end
+        -- print("To south:")
+        for k, v in pairs(nearest_rooms_south) do
+            local adj_room = level.rooms[k]
+            local length = adj_room.y - (room.y + room.height)
+            local x = v[math.floor(math.random() * #v) + 1]
+            local y = room.y + room.height + 1
+            table.insert(edges, {source = room_index, target = k, pos = {offset, 0}, dir = {0, 1}, length = length})
+            table.insert(edges, {source = k, target = room_index, pos = {offset, 0}, dir = {0, 1}, length = length})
+        --     print(adj_room.x, adj_room.y)
+        --     print(unpack(v))
         end
+        -- io.flush()
+        -- break
     end
-    gen.update_status("Creating passages...")
-    for j, row in pairs(level.tiles) do
-        for i, t in pairs(row) do
-            if gen.is_wall(level, i, j) then
-                gen.try_passage(level, i, j, 1, 0)
-                gen.try_passage(level, i, j, 0, 1)
-                gen.try_passage(level, i, j, -1, 0)
-                gen.try_passage(level, i, j, 0, -1)
-            end
-        end
-    end
+    -- TODO: Find edges {source, target, length}
+    return {nodes, edges}
 end
 
-local function check_for_passage(level, x, y, dx, dy, length)
-    if x < 1 or x > level.width then return -1 end
-    if y < 1 or y > level.height then return -1 end
-    if gen.is_exit(level, x + dx, y + dy) then return -1 end
-    if gen.is_wall(level, x + dx, y + dy) and gen.is_floor(level, x + dx*2, y + dy*2) then
-        return length or 0
-    end
-    if gen.get_tile(level, x + dx, y + dy) == tile.NONE then
-        return check_for_passage(level, x + dx, y + dy, dx, dy, (length or 0) + 1)
-    end
-    return -1
+function gen.minimum_spanning_tree(graph)
+    -- mst
+    return {}
 end
 
-local function get_passage_width(level, x, y, dx, dy)
-    local width = 1
-    local adj_x = x + dy
-    local adj_y = y + dx
-    while check_for_passage(level, adj_x, adj_y, dx, dy) > 0 do
-        width = width + 1
-        adj_x = adj_x + dy
-        adj_y = adj_y + dx
-    end
-    return width
-end
-
-local function make_passage(level, x, y, dx, dy, width, height)
-    local ox, oy = x, y
-    for j = y, y + height do
-        for i = x, x + width do
-            gen.set_tile(level, i, j, tile.FLOOR, tile.WALL_TOP, tile.WALL_SIDE)
-        end
-    end
-    repeat
+function gen.find_nearest_room_index(level, x, y, dx, dy)
+    while gen.is_wall(level, x, y) and not gen.is_exit(level, x, y) and not gen.is_exit(level, x, y - 1) do
         x = x + dx
         y = y + dy
-        for j = y, y + height do
-            for i = x, x + width do
-                gen.set_tile(level, i, j, tile.FLOOR, tile.WALL_TOP, tile.WALL_SIDE)
+    end
+    if gen.is_floor(level, x, y) then
+        for index, room in ipairs(level.rooms) do
+            if gen.is_in_room(x, y, room) then
+                return index
             end
         end
-    until gen.get_tile(level, x + dx, y + dy) == tile.NONE
-    x = x + dx
-    y = y + dy
-    for j = y, y + height do
-        for i = x, x + width do
-            gen.set_tile(level, i, j, tile.FLOOR, tile.WALL_TOP, tile.WALL_SIDE)
-        end
     end
-    local room = {x = x, y = y, width = x - ox + 1, height = y - oy + 1 }
-    table.insert(level.rooms, room)
-end
-
-function gen.try_passage(level, x, y, dx, dy)
-    if not gen.is_floor(level, x - dx, y - dy) then
-        return
-    end
-    local length = check_for_passage(level, x, y, dx, dy)
-    if length > 0 then
-        local width, height = 1, 1
-        local passage_width = get_passage_width(level, x, y, dx, dy)
-        if dx ~= 0 then
-            height = passage_width
-        end
-        if dy ~= 0 then
-            width = passage_width
-        end
-        make_passage(level, x, y, dx, dy, width, height)
-    end
+    return nil
 end
 
 function gen.fill_up(level)
