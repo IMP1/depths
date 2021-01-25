@@ -266,6 +266,11 @@ end
 
 function gen.join_rooms(level)
     local passage_edges = gen.random_spanning_tree(level)
+    for _, edge in pairs(passage_edges) do
+        local source = level.rooms[edge.source]
+        local target = level.rooms[edge.target]
+        print("(" .. source.x .. "," .. source.y .. ")", "->", "(" .. target.x .. "," .. target.y .. ")")
+    end
     -- TODO: Create passages following edges of MST(s)
     -- gen.create_passages(level)
 end
@@ -277,11 +282,12 @@ function gen.random_spanning_tree(level)
         for _, edge in pairs(graph[2]) do
             edge.length = math.random()
         end
-        local mst = gen.minimum_spanning_tree(graph)
+        local mst, unconnected_rooms = mst.minimum_spanning_tree(graph)
         for _, edge in pairs(mst) do
-            table.insert(passage_edges)
+            table.insert(passage_edges, edge)
         end
     end
+    return passage_edges
 end
 
 function gen.create_room_graph(level)
@@ -289,7 +295,7 @@ function gen.create_room_graph(level)
     local edges = {}
 
     for room_index, room in pairs(level.rooms) do
-        table.insert(nodes, room)
+        table.insert(nodes, room_index)
         local nearest_rooms_east = {}
         do
             local i = room.x + room.width + 1
@@ -324,7 +330,6 @@ function gen.create_room_graph(level)
             local x = room.x + room.width + 1
             local y = v[math.floor(math.random() * #v) + 1]
             table.insert(edges, {source = room_index, target = k, pos = {x, y}, dir = {1, 0}, length = length})
-            table.insert(edges, {source = k, target = room_index, pos = {x, y}, dir = {1, 0}, length = length})
             -- print(adj_room.x, adj_room.y)
             -- print(unpack(v))
         end
@@ -335,7 +340,6 @@ function gen.create_room_graph(level)
             local x = v[math.floor(math.random() * #v) + 1]
             local y = room.y + room.height + 1
             table.insert(edges, {source = room_index, target = k, pos = {offset, 0}, dir = {0, 1}, length = length})
-            table.insert(edges, {source = k, target = room_index, pos = {offset, 0}, dir = {0, 1}, length = length})
         --     print(adj_room.x, adj_room.y)
         --     print(unpack(v))
         end
@@ -344,11 +348,6 @@ function gen.create_room_graph(level)
     end
     -- TODO: Find edges {source, target, length}
     return {nodes, edges}
-end
-
-function gen.minimum_spanning_tree(graph)
-    -- mst
-    return {}
 end
 
 function gen.find_nearest_room_index(level, x, y, dx, dy)
