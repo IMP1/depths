@@ -531,8 +531,8 @@ function gen.create_spike_traps(level)
     for j, row in pairs(level.tiles) do
         for i, t in pairs(row) do
             local occupied = gen.is_trap_at(level, i, j)
-            local too_near_exit = math.abs(i - level.start_position.x) + math.abs(j - level.start_position.y) > min_distance_from_exit and 
-                                  math.abs(i - level.end_position.x) + math.abs(j - level.end_position.y) > min_distance_from_exit
+            local too_near_exit = math.abs(i - level.start_position.x) + math.abs(j - level.start_position.y) < min_distance_from_exit and 
+                                  math.abs(i - level.end_position.x) + math.abs(j - level.end_position.y) < min_distance_from_exit
             if gen.is_floor(level, i, j) and not occupied and not too_near_exit and math.random() < probability then
                 local trap = require('cls.trap.spike').new(i, j)
                 table.insert(level.traps, trap)
