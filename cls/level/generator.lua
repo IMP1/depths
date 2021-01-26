@@ -489,6 +489,9 @@ end
 function gen.create_traps(level)
     gen.update_status("Adding traps...")
     gen.create_boulder_traps(level)
+    gen.create_spike_traps(level)
+    -- gen.create_swinging_traps(level)
+    -- gen.create_arrow_traps(level)
 end
 
 function gen.create_boulder_traps(level)
@@ -508,6 +511,7 @@ function gen.create_boulder_trap(level, room)
     local trap_y = room.y + math.random(room.height)
     local boulder_x = trap_x
     local boulder_y = trap_y
+    -- TODO: Decide where boulder should come from
     if room.width > room.height then
 
     else
@@ -516,8 +520,24 @@ function gen.create_boulder_trap(level, room)
 
     local too_near_exit = false
     if gen.is_floor(level, trap_x, trap_y) and gen.is_floor(level, boulder_x, boulder_y) and not too_near_exit then
-        local trap = {trap=TRAP.BOULDER, args={trap_x, trap_y, boulder_x, boulder_y}}
+        local trap = require('cls.trap.boulder').new(trap_x, trap_y, boulder_x, boulder_y)
         table.insert(level.traps, trap)
+    end
+end
+
+function gen.create_spike_traps(level)
+    local probability = 0.01
+    local min_distance_from_exit = 3
+    for j, row in pairs(level.tiles) do
+        for i, t in pairs(row) do
+            local occupied = gen.is_trap_at(level, i, j)
+            local too_near_exit = math.abs(i - level.start_position.x) + math.abs(j - level.start_position.y) > min_distance_from_exit and 
+                                  math.abs(i - level.end_position.x) + math.abs(j - level.end_position.y) > min_distance_from_exit
+            if gen.is_floor(level, i, j) and not occupied and not too_near_exit and math.random() < probability then
+                local trap = require('cls.trap.spike').new(i, j)
+                table.insert(level.traps, trap)
+            end
+        end
     end
 end
 

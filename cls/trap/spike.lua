@@ -6,24 +6,24 @@ local spike_trap = {}
 setmetatable(spike_trap, trap)
 spike_trap.__index = spike_trap
 
-local IMAGE = love.graphics.newImage("res/trap/spike_trap.png")
+-- local IMAGE = love.graphics.newImage("res/trap/spike_trap.png")
 local FRAME_DURATIONS = {0.04, 0.08, 0.16, 1, 0.1, 0.1, 0.5}
 local DAMAGE_FRAME = 4
 
 spike_trap.DAMAGE = 50
 
 function spike_trap.new(x, y)
-    local self = trap.new(x, y, "Spike Trap", 1, 400)
+    local self = trap.new(x, y, "Spike", 1, 400)
     setmetatable(self, spike_trap)
 
-    self.animation = animation.new({
-        image = IMAGE,
-        frames = 7,
-        frames_wide = 7,
-        frames_high = 1,
-        loop = false,
-        frame_durations = FRAME_DURATIONS,
-    })
+    -- self.animation = animation.new({
+        -- image = IMAGE,
+        -- frames = 7,
+        -- frames_wide = 7,
+        -- frames_high = 1,
+        -- loop = false,
+        -- frame_durations = FRAME_DURATIONS,
+    -- })
     self.hit = false
 
     return self

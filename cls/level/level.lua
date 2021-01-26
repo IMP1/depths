@@ -44,30 +44,10 @@ function level.new(options)
     self.end_position = options.end_position
     self.boss_position = options.boss_position
     self.auto_tiles = options.auto_tiles
-
-    self.fake_walls = {}
-    for _, fake_wall_data in pairs(options.fake_walls) do
-        local fake_wall = require('cls.level.fake_wall').new(unpack(fake_wall_data))
-        table.insert(self.fake_walls, fake_wall)
-    end
-
-    self.traps = {}
-    for _, trap_data in pairs(options.traps) do
-        local trap = require('cls.trap.' .. trap_data.trap).new(unpack(trap_data.args))
-        table.insert(self.traps, trap)
-    end
-
-    self.enemies = {}
-    for _, enemy_data in pairs(options.enemies) do
-        local enemy = require('cls.enemy.' .. enemy_data.enemy).new(unpack(enemy_data.args))
-        table.insert(self.enemies, enemy)
-    end
-
-    self.treasure = {}
-    for _, treasure_data in pairs(options.treasure) do
-        local treasure = require('cls.level.' .. treasure_data.treasure).new(unpack(treasure_data.args))
-        table.insert(self.treasure, treasure)
-    end
+    self.fake_walls = options.fake_walls
+    self.traps = options.traps
+    self.enemies = options.enemies
+    self.treasure = options.treasure
 
     return self
 end
