@@ -14,7 +14,7 @@ function love.load()
         max_height = 32,
         seed = os.time(),
     })
-    camera:scale(16)
+    -- camera:scale(16)
 end
 
 function love.keypressed(key)
@@ -71,12 +71,10 @@ function love.draw()
         love.graphics.push()
         love.graphics.translate(100, 100)
         camera:set()
-        map:draw()
+        map:draw(16)
         -- TODO: Get room under mouse (if any) and draw connections over the map
         camera:unset()
-        if love.keyboard.isDown("lshift") then
-            love.graphics.setColor(0, 0, 0, 0.3)
-            love.graphics.setLineWidth(camera.scaleX)
+        if love.keyboard.isDown("lctrl") then
             for source_index, source in pairs(map.rooms) do
                 local connections = 0
                 local from_i = source.x
@@ -92,23 +90,26 @@ function love.draw()
                         local to_i = target.x
                         local to_j = target.y
                         if conn.dir[1] ~= 0 then
-                            to_j = from_j - 0.5
+                            to_j = from_j
                             from_j = to_j
-                            from_i = from_i - 1
-                            to_i = to_i - 1
+                            from_i = from_i
+                            to_i = to_i
                         else
-                            to_i = from_i - 0.5
+                            to_i = from_i
                             from_i = to_i
-                            from_j = from_j - 1
-                            to_j = to_j - 1
+                            from_j = from_j
+                            to_j = to_j
                         end
-                        local from_x, from_y = camera:toScreenPosition(from_i, from_j)
-                        local to_x, to_y = camera:toScreenPosition(to_i, to_j)
-                        love.graphics.line(from_x, from_y, to_x, to_y)
+                        local from_x, from_y = camera:toScreenPosition(from_i - 1, from_j - 1)
+                        local to_x, to_y = camera:toScreenPosition(to_i - 1, to_j - 1)
+                        love.graphics.setColor(0, 0, 1)
+                        love.graphics.setLineWidth(1)
+                        love.graphics.rectangle("line", from_x * 16, from_y * 16, math.max(to_x - from_x, 1) * 16, math.max(to_y - from_y, 1) * 16)
                     end
                 end
                 if connections == 0 then
                     camera:set()
+                    love.graphics.setColor(0.5, 0.3, 0.3, 0.5)
                     love.graphics.rectangle("fill", source.x - 1, source.y - 1, source.width + 1, source.height + 1)
                     camera:unset()
                 end
