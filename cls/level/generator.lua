@@ -2,7 +2,8 @@ local options = love.thread.getChannel("level-gen"):demand()
 
 local mst = require('lib.minimum_spanning_tree')
 
-local tile = require('cls.level.level').tile
+local TILE = require('cls.level.level').tiles
+local TRAP = require('cls.level.level').traps
 
 local seed = options.seed or os.time()
 math.randomseed(seed)
@@ -30,7 +31,7 @@ function gen.generate()
     for j = 1, level.height do
         level.tiles[j] = {}
         for i = 1, level.width do
-            level.tiles[j][i] = tile.NONE
+            level.tiles[j][i] = TILE.NONE
         end
     end
 
@@ -49,9 +50,7 @@ function gen.generate()
 
     gen.create_layout(level)
     gen.create_auto_tiles(level)
-    gen.add_traps(level)
-    gen.add_enemies(level)
-    gen.add_treasure(level)
+    gen.create_content(level)
 
     gen.update_status("Finished.")
     return level
@@ -61,12 +60,12 @@ function gen.get_tile(level, x, y)
     if level.tiles[y] and level.tiles[y][x] then
         return level.tiles[y][x]
     end
-    return tile.NONE
+    return TILE.NONE
 end
 
 function gen.is_wall(level, x, y)
     local t = gen.get_tile(level, x, y)
-    return t == tile.WALL_TOP or t == tile.WALL_SIDE or t == tile.WALL_DEBUG
+    return t == TILE.WALL_TOP or t == TILE.WALL_SIDE
 end
 
 function gen.is_exit(level, x, y)
@@ -77,7 +76,11 @@ end
 
 function gen.is_floor(level, x, y)
     local t = gen.get_tile(level, x, y)
-    return t == tile.FLOOR or t == tile.FLOOR_START or t == tile.FLOOR_END or t == tile.FLOOR_BOSS or t == tile.FLOOR_DEBUG
+    return t == TILE.FLOOR or 
+           t == TILE.FLOOR_START or 
+           t == TILE.FLOOR_END or 
+           t == TILE.FLOOR_BOSS or 
+           t == TILE.FLOOR_HALL
 end
 
 function gen.is_in_room(x, y, room)
@@ -101,14 +104,14 @@ function gen.set_tile(level, x, y, tile_type, ...)
     local overwrite = {...}
     if #overwrite == 0 then
         overwrite = {}
-        for k, v in pairs(tile) do
+        for k, v in pairs(TILE) do
             overwrite[v] = true
         end
     elseif #overwrite == 1 then
         if type(overwrite[1]) == "boolean" then
             local overwrite_all = overwrite[1]
             overwrite = {}
-            for k, v in pairs(tile) do
+            for k, v in pairs(TILE) do
                 overwrite[v] = true
             end            
         else
@@ -128,12 +131,12 @@ function gen.set_tile(level, x, y, tile_type, ...)
     if y < 1 or y > level.height then return end
     if x < 1 or x > level.width then return end
     local current_tile = level.tiles[y][x]
-    if overwrite[current_tile] or current_tile == tile.NONE then
+    if overwrite[current_tile] or current_tile == TILE.NONE then
         level.tiles[y][x] = tile_type
     end
 end
 
-local function is_space_at(level, x, y, width, height)
+function gen.is_space_at(level, x, y, width, height)
     if x < 1 or x + width > level.width then return false end
     if y < 1 or y + height > level.height then return false end
     for _, room in pairs(level.rooms) do
@@ -144,22 +147,31 @@ local function is_space_at(level, x, y, width, height)
     return true
 end
 
+function gen.is_trap_at(level, x, y)
+    for _, t in pairs(level.traps) do
+        if t:is_at_tile(x, y) then 
+            return true 
+        end
+    end
+    return false
+end
+
 function gen.create_layout(level)
-    gen.add_rooms(level)
+    gen.create_rooms(level)
     gen.join_rooms(level)
-    gen.fill_up(level)
-    -- gen.hide_rooms(level)
-    -- gen.add_columns(level)
+    gen.fill_empty_space(level)
+    gen.hide_rooms(level)
+    gen.create_columns(level)
     -- gen.ensure_wall_thickness(level)
 end
 
-function gen.add_rooms(level)
+function gen.create_rooms(level)
     gen.update_status("Adding rooms...")
     -- Add necessary rooms
     repeat
-        local start_room = gen.add_random_room(level, 4, 3, tile.FLOOR_START)
-        local end_room = gen.add_random_room(level, 4, 3, tile.FLOOR_END)
-        local boss_room = gen.add_random_room(level, 6, 5, tile.FLOOR_BOSS)
+        local start_room = gen.add_random_room(level, 4, 3, TILE.FLOOR_START)
+        local end_room = gen.add_random_room(level, 4, 3, TILE.FLOOR_END)
+        local boss_room = gen.add_random_room(level, 6, 5, TILE.FLOOR_BOSS)
         if start_room and end_room and boss_room then
             local start_x = start_room.x + math.floor(math.random() * start_room.width)
             local end_x = end_room.x + math.floor(math.random() * end_room.width)
@@ -176,56 +188,56 @@ function gen.add_rooms(level)
     for i = 1, large_room_count do
         local w = 3 + math.random(4)
         local h = 2 + math.random(4)
-        local tile_type = tile.FLOOR
-        if math.random() < no_room_prob then tile_type = tile.WALL_TOP end
+        local tile_type = TILE.FLOOR
+        if math.random() < no_room_prob then tile_type = TILE.WALL_TOP end
         gen.add_random_room(level, w, h, tile_type)
     end
     local medium_room_count = 4 + math.random(4)
     for i = 1, medium_room_count do
         local w = 2 + math.random(3)
         local h = 1 + math.random(5)
-        local tile_type = tile.FLOOR
-        if math.random() < no_room_prob then tile_type = tile.WALL_TOP end
+        local tile_type = TILE.FLOOR
+        if math.random() < no_room_prob then tile_type = TILE.WALL_TOP end
         gen.add_random_room(level, w, h, tile_type)
     end
     local small_room_count = 7 + math.floor(math.random() * 4)
     for i = 1, small_room_count do
         local w = 1 + math.random(2)
         local h = 1 + math.random(2)
-        local tile_type = tile.FLOOR
-        if math.random() < no_room_prob then tile_type = tile.WALL_TOP end
+        local tile_type = TILE.FLOOR
+        if math.random() < no_room_prob then tile_type = TILE.WALL_TOP end
         gen.add_random_room(level, w, h, tile_type)
     end
     -- Add long 'corridor' rooms
     for i = 1, 3 do
         local w = 7 + math.random(2)
         local h = 1
-        gen.add_random_room(level, w, h, tile.FLOOR)
+        gen.add_random_room(level, w, h, TILE.FLOOR)
     end
     for i = 1, 3 do
         local w = 1
         local h = 7 + math.random(2)
-        gen.add_random_room(level, w, h, tile.FLOOR)
+        gen.add_random_room(level, w, h, TILE.FLOOR)
     end
     for i = 1, 3 do
         local w = 5 + math.random(3)
         local h = 1
-        gen.add_random_room(level, w, h, tile.FLOOR)
+        gen.add_random_room(level, w, h, TILE.FLOOR)
     end
     for i = 1, 3 do
         local w = 1
         local h = 5 + math.random(3)
-        gen.add_random_room(level, w, h, tile.FLOOR)
+        gen.add_random_room(level, w, h, TILE.FLOOR)
     end
     for i = 1, 4 do
         local w = 3 + math.random(3)
         local h = 1
-        gen.add_random_room(level, w, h, tile.FLOOR)
+        gen.add_random_room(level, w, h, TILE.FLOOR)
     end
     for i = 1, 4 do
         local w = 1
         local h = 3 + math.random(3)
-        gen.add_random_room(level, w, h, tile.FLOOR)
+        gen.add_random_room(level, w, h, TILE.FLOOR)
     end
 end
 
@@ -234,14 +246,14 @@ function gen.add_random_room(level, width, height, tile_type)
     for n = random_pos, level.width * level.height do
         local x = n % level.width
         local y = math.floor(n / level.width)
-        if is_space_at(level, x-1, y-1, width+2, height+2) then
+        if gen.is_space_at(level, x-1, y-1, width+2, height+2) then
             return gen.add_room(level, x, y, width, height, tile_type)
         end
     end
     for n = random_pos, 1, -1 do
         local x = n % level.width
         local y = math.floor(n / level.width)
-        if is_space_at(level, x-1, y-1, width+2, height+2) then
+        if gen.is_space_at(level, x-1, y-1, width+2, height+2) then
             return gen.add_room(level, x, y, width, height, tile_type)
         end
     end
@@ -251,12 +263,12 @@ end
 function gen.add_room(level, x, y, width, height, floor_type, wall_type)
     for j = y - 1, y + height + 1 do
         for i = x - 1, x + width + 1 do
-            gen.set_tile(level, i, j, wall_type or tile.WALL_TOP)
+            gen.set_tile(level, i, j, wall_type or TILE.WALL_TOP)
         end
     end
     for j = y, y + height do
         for i = x, x + width do
-            gen.set_tile(level, i, j, floor_type or tile.FLOOR)
+            gen.set_tile(level, i, j, floor_type or TILE.FLOOR)
         end
     end
     local room = {x = x, y = y, width = width, height = height}
@@ -266,16 +278,7 @@ end
 
 function gen.join_rooms(level)
     gen.remove_non_rooms(level)
-    local passage_edges = gen.random_spanning_tree(level)
-    for _, edge in pairs(passage_edges) do
-        local source = level.rooms[edge.source]
-        local target = level.rooms[edge.target]
-        print("(" .. source.x .. "," .. source.y .. ")", "->", "(" .. target.x .. "," .. target.y .. ")", unpack(edge.pos))
-    end
-    io.flush()
-    level.connections = passage_edges
-    -- TODO: Create passages following edges of MST(s)
-    -- gen.create_passages(level)
+    gen.add_passages(level)
 end
 
 function gen.remove_non_rooms(level)
@@ -288,14 +291,39 @@ function gen.remove_non_rooms(level)
     end
 end
 
+function gen.add_passages(level)
+    local passage_edges = gen.random_spanning_tree(level)
+    -- TODO: Remove this once generation is finished.
+    --       It's used for visualising the intermediate outputs
+    level.connections = passage_edges
+    for _, connection in pairs(passage_edges) do
+        local source = level.rooms[connection.source]
+        local target = level.rooms[connection.target]
+        local from_i, from_j = unpack(connection.pos)
+        local to_i = from_i + connection.length * connection.dir[1]
+        local to_j = from_j + connection.length * connection.dir[2]
+        local width = to_i - from_i
+        local height = to_j - from_j
+        gen.add_corridor(level, from_i, from_j, width, height)
+    end
+end
+
 function gen.random_spanning_tree(level)
     local graph = gen.create_room_graph(level)
     local passage_edges = {}
-    for i = 1, math.random(2) do
+    for i = 1, math.random(3) do
         for _, edge in pairs(graph[2]) do
-            edge.length = math.random()
+            edge.weight = math.random()
         end
         local mst, unconnected_rooms = mst.minimum_spanning_tree(graph)
+        if #unconnected_rooms > 0 then
+            print("Isolated Rooms!")
+            for _, room_id in pairs(unconnected_rooms) do
+                local room = level.rooms[room_id]
+                print(room.x, room.y)
+            end
+            print()
+        end
         for _, edge in pairs(mst) do
             table.insert(passage_edges, edge)
         end
@@ -339,27 +367,26 @@ function gen.create_room_graph(level)
         -- print("To east:")
         for k, v in pairs(nearest_rooms_east) do
             local adj_room = level.rooms[k]
-            local length = adj_room.x - (room.x + room.width)
+            local length = adj_room.x - (room.x + room.width + 1) - 1
             local x = room.x + room.width + 1
             local y = v[math.random(#v)]
-            table.insert(edges, {source = room_index, target = k, pos = {x, y}, dir = {1, 0}, length = length})
+            table.insert(edges, {source = room_index, target = k, pos = {x, y}, dir = {1, 0}, length = length, weight = length})
             -- print(adj_room.x, adj_room.y)
             -- print(unpack(v))
         end
         -- print("To south:")
         for k, v in pairs(nearest_rooms_south) do
             local adj_room = level.rooms[k]
-            local length = adj_room.y - (room.y + room.height)
+            local length = adj_room.y - (room.y + room.height + 1) - 1
             local x = v[math.random(#v)]
             local y = room.y + room.height + 1
-            table.insert(edges, {source = room_index, target = k, pos = {x, y}, dir = {0, 1}, length = length})
+            table.insert(edges, {source = room_index, target = k, pos = {x, y}, dir = {0, 1}, length = length, weight = length})
         --     print(adj_room.x, adj_room.y)
         --     print(unpack(v))
         end
         -- io.flush()
         -- break
     end
-    -- TODO: Find edges {source, target, length}
     return {nodes, edges}
 end
 
@@ -368,7 +395,7 @@ function gen.find_nearest_room_index(level, x, y, dx, dy)
         x = x + dx
         y = y + dy
     end
-    if gen.is_floor(level, x, y) then
+    if gen.is_floor(level, x, y) and not gen.is_exit(level, x, y - 1) then
         for index, room in ipairs(level.rooms) do
             if gen.is_in_room(x, y, room) then
                 return index
@@ -378,12 +405,22 @@ function gen.find_nearest_room_index(level, x, y, dx, dy)
     return nil
 end
 
-function gen.fill_up(level)
+function gen.add_corridor(level, x, y, width, height, add_room)
+    for j = y, y + height do
+        for i = x, x + width do
+            gen.set_tile(level, i, j, TILE.FLOOR_HALL)
+        end
+    end
+    local room = {x = x, y = y, width = width, height = height}
+    table.insert(level.rooms, room)
+end
+
+function gen.fill_empty_space(level)
     gen.update_status("Filling empty space...")
     for j = 1, level.height do
         for i = 1, level.width do
-            if gen.get_tile(level, i, j) == tile.NONE then
-                gen.set_tile(level, i, j, tile.WALL_TOP)
+            if gen.get_tile(level, i, j) == TILE.NONE then
+                gen.set_tile(level, i, j, TILE.WALL_TOP)
             end
         end
     end
@@ -397,51 +434,101 @@ function gen.hide_rooms(level)
             table.insert(level.hidden_rooms, r)
             for j = r.y - 1, r.y + r.height + 1 do
                 if gen.is_floor(level, r.x-1, j) and not gen.is_exit(level, r.x-1, j-1) then
-                    gen.set_tile(level, r.x-1, j, tile.FAKE_WALL)
+                    gen.set_tile(level, r.x-1, j, TILE.FAKE_WALL)
                 end
-                if gen.is_floor(level, r.x+r.width, j) and not gen.is_exit(level, r.x+r.width, j-1) then
-                    gen.set_tile(level, r.x+r.width, j, tile.FAKE_WALL)
+                if gen.is_floor(level, r.x+r.width+1, j) and not gen.is_exit(level, r.x+r.width+1, j-1) then
+                    gen.set_tile(level, r.x+r.width+1, j, TILE.FAKE_WALL)
                 end
             end
             for i = r.x - 1, r.x + r.width + 1 do
-                if gen.is_floor(level, i, r.y-1) and not gen.is_exit(level, i, r.y-1) and not gen.is_exit(level, i, r.y-2) then
-                    gen.set_tile(level, i, r.y-1)
-                    if gen.is_wall(level, i-1, r.y) or gen.is_wall(level, i+1, r.y) then
-                        gen.set_tile(level, i, r.y)
-                    else
-                        gen.set_tile(level, i, r.y-2)
-                    end
+                if gen.is_floor(level, i, r.y-1) and not gen.is_exit(level, i, r.y-2) then
+                    gen.set_tile(level, i, r.y-1, TILE.FAKE_WALL)
                 end
-                if gen.is_floor(level, i, r.y+r.height) and not gen.is_exit(level, i, r.y+r.height) and not gen.is_exit(level, i, r.y+r.height-1) then
-                    gen.set_tile(level, i, r.y+r.height)
-                    if gen.is_wall(level, i-1, r.y+r.height) or gen.is_wall(level, i+1, r.y+r.height) then
-                        gen.set_tile(level, i, r.y+r.height)
-                    else
-                        gen.set_tile(level, i, r.y+r.height-1)
-                    end
+                if gen.is_floor(level, i, r.y+r.height+1) and not gen.is_exit(level, i, r.y+r.height) then
+                    gen.set_tile(level, i, r.y+r.height+1, TILE.FAKE_WALL)
                 end
             end
         end
     end
 end
 
-function gen.add_columns(level)
+function gen.create_columns(level)
     gen.update_status("Adding columns...")
-end
-
-function gen.ensure_wall_thickness(level)
+    local probability = 0.05
+    for j, row in pairs(level.tiles) do
+        for i, t in pairs(row) do
+            local enough_space = gen.is_floor(level, i-1, j-1) and
+                                 gen.is_floor(level, i,   j-1) and
+                                 gen.is_floor(level, i+1, j-1) and
+                                 gen.is_floor(level, i-1, j) and
+                                 gen.is_floor(level, i,   j) and
+                                 gen.is_floor(level, i+1, j) and
+                                 gen.is_floor(level, i-1, j+1) and
+                                 gen.is_floor(level, i,   j+1) and
+                                 gen.is_floor(level, i+1, j+1)
+            local occupied = gen.is_trap_at(level, i, j)
+            local obscuring = gen.is_trap_at(level, i, j-1) or
+                              gen.is_exit(level, i, j-2)
+            if enough_space and not occupied and not obscuring and math.random() < probability then
+                gen.set_tile(level, i, j, TILE.COLUMN_SIDE)
+            end
+        end
+    end
 end
 
 function gen.create_auto_tiles(level)
+
 end
 
-function gen.add_traps(level)
+function gen.create_content(level)
+    gen.create_traps(level)
+    gen.create_enemies(level)
+    gen.create_treasure(level)
 end
 
-function gen.add_enemies(level)
+function gen.create_traps(level)
+    gen.update_status("Adding traps...")
+    gen.create_boulder_traps(level)
 end
 
-function gen.add_treasure(level)
+function gen.create_boulder_traps(level)
+    local corridor_probability = 0.2
+    local open_space_probability = 0.1
+    for _, r in pairs(level.rooms) do
+        local long = (r.width > 3 and r.height == 1) or
+                     (r.width == 0 and r.height > 3)
+        if (long and math.random() < corridor_probability) or (math.random() < open_space_probability) then
+            gen.create_boulder_trap(level, r)
+        end
+    end
+end
+
+function gen.create_boulder_trap(level, room)
+    local trap_x = room.x + math.random(room.width)
+    local trap_y = room.y + math.random(room.height)
+    local boulder_x = trap_x
+    local boulder_y = trap_y
+    if room.width > room.height then
+
+    else
+
+    end
+
+    local too_near_exit = false
+    if gen.is_floor(level, trap_x, trap_y) and gen.is_floor(level, boulder_x, boulder_y) and not too_near_exit then
+        local trap = {trap=TRAP.BOULDER, args={trap_x, trap_y, boulder_x, boulder_y}}
+        table.insert(level.traps, trap)
+    end
+end
+
+function gen.create_enemies(level)
+    gen.update_status("Adding enemies...")
+    -- TODO: Add random enemies (based on room size?)
+    -- TODO: Add boss in boss room
+end
+
+function gen.create_treasure(level)
+    gen.update_status("Adding treasure...")
 end
 
 
