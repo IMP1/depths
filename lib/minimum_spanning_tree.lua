@@ -20,17 +20,16 @@ function mst.minimum_spanning_tree(graph)
         if not edge_forest[edge.source] then
             edge_forest[edge.source] = {}
         end
-        table.insert(edge_forest[edge.source], {target = edge.target, length = edge.length, data = edge})
+        table.insert(edge_forest[edge.source], {target = edge.target, weight = edge.weight, data = edge})
         if not edge_forest[edge.target] then
             edge_forest[edge.target] = {}
         end
-        table.insert(edge_forest[edge.target], {target = edge.source, length = edge.length, data = edge})
+        table.insert(edge_forest[edge.target], {target = edge.source, weight = edge.weight, data = edge})
     end
 
     for _, node in pairs(nodes) do
         if not edge_forest[node] then
             table.insert(isolated_nodes, node)
-            print("Isolated node:", node)
         end
     end
 
@@ -53,8 +52,9 @@ function mst.minimum_spanning_tree(graph)
         if #available_edges == 0 then
             print("No available edges")
             print(#spanning_nodes .. "/" .. (#nodes - #isolated_nodes) .. " nodes connected.")
+            break
         end
-        table.sort(available_edges, function(a, b) return a.length < b.length end)
+        table.sort(available_edges, function(a, b) return a.weight < b.weight end)
         local shortest_edge = available_edges[1]
         table.insert(spanning_edges, shortest_edge.data)
         table.insert(spanning_nodes, shortest_edge.target)
