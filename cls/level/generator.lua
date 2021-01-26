@@ -172,65 +172,65 @@ function gen.add_rooms(level)
     until start_room and end_room and boss_room
     -- Add optional rooms
     local no_room_prob = 0.1
-    local large_room_count = 3 + math.floor(math.random() * 4)
+    local large_room_count = 2 + math.random(4)
     for i = 1, large_room_count do
-        local w = 4 + math.floor(math.random() * 4)
-        local h = 3 + math.floor(math.random() * 4)
+        local w = 3 + math.random(4)
+        local h = 2 + math.random(4)
         local tile_type = tile.FLOOR
         if math.random() < no_room_prob then tile_type = tile.WALL_TOP end
         gen.add_random_room(level, w, h, tile_type)
     end
-    local medium_room_count = 5 + math.floor(math.random() * 4)
+    local medium_room_count = 4 + math.random(4)
     for i = 1, medium_room_count do
-        local w = 3 + math.floor(math.random() * 3)
-        local h = 2 + math.floor(math.random() * 5)
+        local w = 2 + math.random(3)
+        local h = 1 + math.random(5)
         local tile_type = tile.FLOOR
         if math.random() < no_room_prob then tile_type = tile.WALL_TOP end
         gen.add_random_room(level, w, h, tile_type)
     end
     local small_room_count = 7 + math.floor(math.random() * 4)
     for i = 1, small_room_count do
-        local w = 2 + math.floor(math.random() * 2)
-        local h = 2 + math.floor(math.random() * 2)
+        local w = 1 + math.random(2)
+        local h = 1 + math.random(2)
         local tile_type = tile.FLOOR
         if math.random() < no_room_prob then tile_type = tile.WALL_TOP end
         gen.add_random_room(level, w, h, tile_type)
     end
     -- Add long 'corridor' rooms
     for i = 1, 3 do
-        local w = 8 + math.floor(math.random() * 2)
+        local w = 7 + math.random(2)
         local h = 1
         gen.add_random_room(level, w, h, tile.FLOOR)
     end
     for i = 1, 3 do
         local w = 1
-        local h = 8 + math.floor(math.random() * 2)
+        local h = 7 + math.random(2)
         gen.add_random_room(level, w, h, tile.FLOOR)
     end
     for i = 1, 3 do
-        local w = 6 + math.floor(math.random() * 3)
+        local w = 5 + math.random(3)
         local h = 1
         gen.add_random_room(level, w, h, tile.FLOOR)
     end
     for i = 1, 3 do
         local w = 1
-        local h = 6 + math.floor(math.random() * 3)
+        local h = 5 + math.random(3)
         gen.add_random_room(level, w, h, tile.FLOOR)
     end
     for i = 1, 4 do
-        local w = 4 + math.floor(math.random() * 3)
+        local w = 3 + math.random(3)
         local h = 1
         gen.add_random_room(level, w, h, tile.FLOOR)
     end
     for i = 1, 4 do
         local w = 1
-        local h = 4 + math.floor(math.random() * 3)
+        local h = 3 + math.random(3)
         gen.add_random_room(level, w, h, tile.FLOOR)
     end
 end
 
 function gen.add_random_room(level, width, height, tile_type)
-    local random_pos = math.floor(math.random() * level.width * level.height)
+    local random_pos = math.random(level.width * level.height)
     for n = random_pos, level.width * level.height do
         local x = n % level.width
         local y = math.floor(n / level.width)
@@ -291,7 +291,7 @@ end
 function gen.random_spanning_tree(level)
     local graph = gen.create_room_graph(level)
     local passage_edges = {}
-    for i = 1, math.floor(math.random() * 2) + 1 do
+    for i = 1, math.random(2) do
         for _, edge in pairs(graph[2]) do
             edge.length = math.random()
         end
@@ -341,7 +341,7 @@ function gen.create_room_graph(level)
             local adj_room = level.rooms[k]
             local length = adj_room.x - (room.x + room.width)
             local x = room.x + room.width + 1
-            local y = v[math.floor(math.random() * #v) + 1]
+            local y = v[math.random(#v)]
             table.insert(edges, {source = room_index, target = k, pos = {x, y}, dir = {1, 0}, length = length})
             -- print(adj_room.x, adj_room.y)
             -- print(unpack(v))
@@ -350,9 +350,9 @@ function gen.create_room_graph(level)
         for k, v in pairs(nearest_rooms_south) do
             local adj_room = level.rooms[k]
             local length = adj_room.y - (room.y + room.height)
-            local x = v[math.floor(math.random() * #v) + 1]
+            local x = v[math.random(#v)]
             local y = room.y + room.height + 1
-            table.insert(edges, {source = room_index, target = k, pos = {offset, 0}, dir = {0, 1}, length = length})
+            table.insert(edges, {source = room_index, target = k, pos = {x, y}, dir = {0, 1}, length = length})
         --     print(adj_room.x, adj_room.y)
         --     print(unpack(v))
         end
