@@ -265,14 +265,27 @@ function gen.add_room(level, x, y, width, height, floor_type, wall_type)
 end
 
 function gen.join_rooms(level)
+    gen.remove_non_rooms(level)
     local passage_edges = gen.random_spanning_tree(level)
     for _, edge in pairs(passage_edges) do
         local source = level.rooms[edge.source]
         local target = level.rooms[edge.target]
-        print("(" .. source.x .. "," .. source.y .. ")", "->", "(" .. target.x .. "," .. target.y .. ")")
+        print("(" .. source.x .. "," .. source.y .. ")", "->", "(" .. target.x .. "," .. target.y .. ")", unpack(edge.pos))
     end
+    io.flush()
+    level.connections = passage_edges
     -- TODO: Create passages following edges of MST(s)
     -- gen.create_passages(level)
+end
+
+function gen.remove_non_rooms(level)
+    for i = #level.rooms, 1, -1 do
+        local room = level.rooms[i]
+        local x, y = room.x, room.y
+        if gen.is_wall(level, x, y) then
+            table.remove(level.rooms, i)
+        end
+    end
 end
 
 function gen.random_spanning_tree(level)

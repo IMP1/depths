@@ -30,6 +30,8 @@ function level.new(options)
 
     self.tiles = options.tiles
     self.seed = options.seed
+    self.rooms = options.rooms -- Shouldn't be needed outside of level generation (and its testing). TODO: Remove when finished
+    self.connections = options.connections -- Shouldn't be needed outside of level generation (and its testing). TODO: Remove when finished
 
     return self
 end

@@ -49,6 +49,18 @@ function love.update(dt)
     end
 end
 
+local function room_under_mouse(level, x, y)
+    for _, room in pairs(level.rooms) do
+        if x >= room.x and 
+           x <= room.x + room.width and 
+           y >= room.y and 
+           y <= room.y + room.height then
+            return room
+        end
+    end
+    return nil
+end
+
 function love.draw()
     local mx, my = love.mouse.getPosition()
     local wx, wy = camera:toWorldPosition(mx - 100, my - 100)
@@ -60,7 +72,27 @@ function love.draw()
         love.graphics.translate(100, 100)
         camera:set()
         map:draw()
+        -- TODO: Get room under mouse (if any) and draw connections over the map
         camera:unset()
+        if love.keyboard.isDown("lshift") then
+            love.graphics.setColor(0, 0, 0, 0.5)
+            for source_index, source in pairs(map.rooms) do
+                local ox = source.x + source.width / 2
+                local oy = source.y + source.height / 2
+                local from_x, from_y = camera:toScreenPosition(ox - 0.5, oy - 0.5)
+                love.graphics.circle("fill", from_x, from_y, 8)
+                love.graphics.print(#map.connections, from_x, from_y - 16)
+                for _, conn in pairs(map.connections) do
+                    if conn.source == source_index then
+                        local target = map.rooms[conn.target]
+                        local ox = target.x + target.width / 2
+                        local oy = target.y + target.height / 2
+                        local to_x, to_y = camera:toScreenPosition(ox - 0.5, oy - 0.5)
+                        love.graphics.line(from_x, from_y, to_x, to_y)
+                    end
+                end
+            end
+        end
         love.graphics.pop()
         love.graphics.setColor(1, 1, 1)
         love.graphics.print("Map seed: " .. map.seed, 0, 0)
