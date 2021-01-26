@@ -32,7 +32,8 @@ function trap:trigger(game_scene)
 end
 
 function trap:is_at_tile(i, j)
-    return vec2(i, j) == self.trigger_position
+    local x, y = unpack(self.trigger_position.data)
+    return x == i and y == j
 end
 
 return trap

@@ -293,9 +293,6 @@ end
 
 function gen.add_passages(level)
     local passage_edges = gen.random_spanning_tree(level)
-    -- TODO: Remove this once generation is finished.
-    --       It's used for visualising the intermediate outputs
-    level.connections = passage_edges
     for _, connection in pairs(passage_edges) do
         local source = level.rooms[connection.source]
         local target = level.rooms[connection.target]
@@ -306,6 +303,9 @@ function gen.add_passages(level)
         local height = to_j - from_j
         gen.add_corridor(level, from_i, from_j, width, height)
     end
+    -- TODO: Remove this once generation is finished.
+    --       It's used for visualising the intermediate outputs
+    level.connections = passage_edges
 end
 
 function gen.random_spanning_tree(level)
@@ -490,7 +490,7 @@ function gen.create_traps(level)
     gen.update_status("Adding traps...")
     gen.create_boulder_traps(level)
     gen.create_spike_traps(level)
-    -- gen.create_swinging_traps(level)
+    gen.create_swinging_traps(level)
     -- gen.create_arrow_traps(level)
 end
 
@@ -518,7 +518,7 @@ function gen.create_boulder_trap(level, room)
 
     end
 
-    local too_near_exit = false
+    local too_near_exit = false -- TODO: Get manhattan distance to an exit and make sure it's >= 3(?)
     if gen.is_floor(level, trap_x, trap_y) and gen.is_floor(level, boulder_x, boulder_y) and not too_near_exit then
         local trap = require('cls.trap.boulder').new(trap_x, trap_y, boulder_x, boulder_y)
         table.insert(level.traps, trap)
@@ -535,6 +535,45 @@ function gen.create_spike_traps(level)
                                   math.abs(i - level.end_position.x) + math.abs(j - level.end_position.y) < min_distance_from_exit
             if gen.is_floor(level, i, j) and not occupied and not too_near_exit and math.random() < probability then
                 local trap = require('cls.trap.spike').new(i, j)
+                table.insert(level.traps, trap)
+            end
+        end
+    end
+end
+
+function gen.create_swinging_traps(level)
+    local probability = 0.2
+    for j, row in pairs(level.tiles) do
+        for i, t in pairs(row) do
+            local vertical_passage = gen.is_floor(level, i, j) and 
+                                     gen.is_floor(level, i, j-1) and 
+                                     gen.is_floor(level, i, j+1) and 
+                                     not gen.is_trap_at(level, i, j) and
+                                     not gen.is_trap_at(level, i, j-1) and
+                                     not gen.is_trap_at(level, i, j+1) and
+                                     gen.is_wall(level, i-1, j) and
+                                     gen.is_wall(level, i+1, j) and
+                                     gen.is_wall(level, i-1, j-1) and
+                                     gen.is_wall(level, i+1, j-1) and
+                                     gen.is_wall(level, i-1, j+1) and
+                                     gen.is_wall(level, i+1, j+1)
+            local horizontal_passage = gen.is_floor(level, i, j) and 
+                                       gen.is_floor(level, i-1, j) and 
+                                       gen.is_floor(level, i+1, j) and 
+                                       not gen.is_trap_at(level, i, j) and
+                                       not gen.is_trap_at(level, i-1, j) and
+                                       not gen.is_trap_at(level, i+1, j) and
+                                       gen.is_wall(level, i, j-1) and
+                                       gen.is_wall(level, i, j+1) and
+                                       gen.is_wall(level, i-1, j-1) and
+                                       gen.is_wall(level, i-1, j+1) and
+                                       gen.is_wall(level, i+1, j-1) and
+                                       gen.is_wall(level, i+1, j+1)
+            if vertical_passage and math.random() < probability then
+                local trap = require('cls.trap.swinging').new(i, j, 0)
+                table.insert(level.traps, trap)
+            elseif horizontal_passage and math.random() < probability then
+                local trap = require('cls.trap.swinging').new(i, j, 1)
                 table.insert(level.traps, trap)
             end
         end
