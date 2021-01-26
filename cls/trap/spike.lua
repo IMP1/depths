@@ -36,14 +36,18 @@ function spike_trap:update(dt, game)
         if self.animation.current_frame == DAMAGE_FRAME and not self.hit then
             self.hit = true
         end
+        if self.animation.finished then
+            self.triggered = false
+        end
     end
 end
 
-function spike_trap:trigger()
+function spike_trap:trigger(scene)
     if not self.animation:is_playing() then
         self.animation:reset()
         self.animation:start()
         self.hit = false
+        self.triggered = true
     end
 end
 
