@@ -19,7 +19,9 @@ end
 function trap:update(dt, game_scene)
     local x, y = unpack(self.trigger_position.data)
     for obj in game_scene.objects_with_mass do
-        if obj.isAtTile(x, y) and obj.mass >= self.min_triggerable_mass and obj.mas <= self.max_triggerable_mass then
+        local at_least_min_mass = (self.min_triggerable_mass == nil) or (obj.mass >= self.min_triggerable_mass)
+        local at_most_max_mass = (self.max_triggerable_mass == nil) or (obj.mass <= self.max_triggerable_mass)
+        if obj.is_at_tile(x, y) and at_least_min_mass and at_most_max_mass then
             self:trigger(game_scene)
         end
     end
@@ -29,7 +31,7 @@ function trap:trigger(game_scene)
     error("`trigger` not implemented for " .. self.name .. " trap.")
 end
 
-function trap:isAt(i, j)
+function trap:is_at_tile(i, j)
     return vec2(i, j) == self.trigger_position
 end
 
