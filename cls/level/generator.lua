@@ -619,8 +619,59 @@ function gen.create_swinging_traps(level)
 end
 
 function gen.create_arrow_traps(level)
-    -- TODO: Add arrow traps
+    local probability = 0.05
+    local min_distance_from_exit = 2
+    for j, row in pairs(level.tiles) do
+        for i, t in pairs(row) do
+            local too_near_exit = math.abs(j - level.start_position.y) + math.abs(i - level.start_position.x) < min_distance_from_exit or 
+                                  math.abs(j - level.end_position.y) + math.abs(i - level.end_position.x) < min_distance_from_exit
+            if gen.is_floor(level, i, j) and math.random() < probability and not too_near_exit then
+                gen.create_arrow_trap(level, i, j)
+            end
+        end
+    end
 end
+
+function gen.create_arrow_trap(level, trap_x, trap_y)
+    local direction = math.random(4)
+    local distance = 0
+    local dx, dy = 0, 0
+    if direction == 1 then
+        dx = 1
+    elseif direction == 2 then
+        dy = 1
+    elseif direction == 3 then
+        dx = -1
+    elseif direction == 4 then
+        dy = -1
+    end
+    local arrow_x, arrow_y = trap_x + dx, trap_y + dy
+    while gen.is_floor(level, arrow_x, arrow_y) do
+        arrow_x = arrow_x + dx
+        arrow_y = arrow_y + dy
+        distance = distance + 1
+    end
+
+    local fake_wall = gen.get_tile(level, arrow_x, arrow_y) == TILE.FAKE_WALL
+    if fake_wall then
+        return 
+    end
+
+    local too_close = math.abs(arrow_x - trap_x) + math.abs(arrow_y - trap_y) < 3
+    if too_close then
+        return
+    end
+
+    local occupied = gen.is_trap_at(level, trap_x, trap_y) or gen.is_trap_at(level, arrow_x, arrow_y)
+    if occupied then
+        return
+    end
+
+    local trap = require('cls.trap.arrow').new(trap_x, trap_y, arrow_x, arrow_y)
+    table.insert(level.traps, trap)
+end
+
+
 
 function gen.create_enemies(level)
     gen.update_status("Adding enemies...")
