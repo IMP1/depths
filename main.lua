@@ -75,7 +75,7 @@ function love.draw()
         map:draw(SCALE)
         -- TODO: Get room under mouse (if any) and draw connections over the map
         camera:unset()
-        if love.keyboard.isDown("lctrl") then
+        if love.keyboard.isDown("c") then
             for source_index, source in pairs(map.rooms) do
                 local connections = 0
                 local from_i = source.x

@@ -91,14 +91,22 @@ function level:draw(tile_size)
         local x, y = unpack(trap.trigger_position.data)
         love.graphics.setColor(1, 0, 0, 0.4)
         love.graphics.rectangle("fill", (x-1)*s, (y-1)*s, s, s)
-        if trap.boulder_position then
-            local bx, by = unpack(trap.boulder_position.data)
-            love.graphics.setColor(1, 0, 0, 0.4)
-            love.graphics.rectangle("fill", (bx-1)*s, (by-1)*s, s, s)
-            love.graphics.line((x-0.5)*s, (y-0.5)*s, (bx-0.5)*s, (by-0.5)*s)
+        if love.keyboard.isDown("t") then
+            if trap.boulder_position then
+                local bx, by = unpack(trap.boulder_position.data)
+                love.graphics.setColor(1, 0, 0, 0.4)
+                love.graphics.rectangle("fill", (bx-1)*s, (by-1)*s, s, s)
+                love.graphics.line((x-0.5)*s, (y-0.5)*s, (bx-0.5)*s, (by-0.5)*s)
+            end
+            if trap.arrow_position then
+                local ax, ay = unpack(trap.arrow_position.data)
+                love.graphics.setColor(1, 0, 0, 0.4)
+                love.graphics.rectangle("fill", (ax-1)*s, (ay-1)*s, s, s)
+                love.graphics.line((x-0.5)*s, (y-0.5)*s, (ax-0.5)*s, (ay-0.5)*s)
+            end
+            love.graphics.setColor(0, 0, 0)
+            love.graphics.print(trap.name, (x-1)*s, (y-1)*s)
         end
-        love.graphics.setColor(0, 0, 0)
-        love.graphics.print(trap.name, (x-1)*s, (y-1)*s)
     end
 end
 
