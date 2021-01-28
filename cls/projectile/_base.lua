@@ -27,10 +27,18 @@ function projectile:destroy()
     self.finished = true
 end
 
+function projectile:can_move_through(old_position, new_position, scene)
+    -- TODO: Use scene to check for collisions
+end
+
 function projectile:update(dt, scene)
     local new_pos = self.position + self.velocity * dt
-    -- TODO: Get any colliders between position and new_pos
-    -- TODO: Hit stuff
+    if self:can_move_through(self.position, new_pos) then
+        self.position = new_pos
+    else
+        local collider = scene:get_object_at((new_pos + self.position) / 2, radius)
+        self:hit(collider)
+    end
 end
 
 function projectile:draw()
