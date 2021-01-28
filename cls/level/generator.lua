@@ -671,8 +671,6 @@ function gen.create_arrow_trap(level, trap_x, trap_y)
     table.insert(level.traps, trap)
 end
 
-
-
 function gen.create_enemies(level)
     gen.update_status("Adding enemies...")
     -- TODO: Add random enemies (based on room size?)
