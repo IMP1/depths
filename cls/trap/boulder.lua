@@ -16,7 +16,7 @@ function boulder_trap.new(trigger_x, trigger_y, boulder_x, boulder_y)
     local self = trap.new(trigger_x, trigger_y, "Boulder", 1)
     setmetatable(self, boulder_trap)
 
-    self.boulder_position = { boulder_x, boulder_y }
+    self.boulder_position = vec2(boulder_x, boulder_y)
 
     return self
 end

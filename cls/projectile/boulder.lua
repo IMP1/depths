@@ -10,8 +10,6 @@ function boulder.new(x, y, dx, dy)
     local self = projectile.new(x, y, dx * SPEED, dy * SPEED, 16, 600, 9999)
     setmetatale(self, boulder)
 
-
-
     return self
 end
 
