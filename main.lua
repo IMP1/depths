@@ -62,16 +62,17 @@ local function room_under_mouse(level, x, y)
 end
 
 function love.draw()
+    local SCALE = 16
     local mx, my = love.mouse.getPosition()
     local wx, wy = camera:toWorldPosition(mx - 100, my - 100)
-    wx = math.floor(wx) + 1
-    wy = math.floor(wy) + 1
+    wx = math.floor(wx / SCALE) + 1
+    wy = math.floor(wy / SCALE) + 1
     love.graphics.setColor(1, 1, 1)
     if map then
         love.graphics.push()
         love.graphics.translate(100, 100)
         camera:set()
-        map:draw(16)
+        map:draw(SCALE)
         -- TODO: Get room under mouse (if any) and draw connections over the map
         camera:unset()
         if love.keyboard.isDown("lctrl") then
@@ -104,7 +105,7 @@ function love.draw()
                         local to_x, to_y = camera:toScreenPosition(to_i - 1, to_j - 1)
                         love.graphics.setColor(0, 0, 1)
                         love.graphics.setLineWidth(1)
-                        love.graphics.rectangle("line", from_x * 16, from_y * 16, math.max(to_x - from_x, 1) * 16, math.max(to_y - from_y, 1) * 16)
+                        love.graphics.rectangle("line", from_x * SCALE, from_y * SCALE, math.max(to_x - from_x, 1) * SCALE, math.max(to_y - from_y, 1) * SCALE)
                     end
                 end
                 if connections == 0 then
