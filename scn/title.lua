@@ -19,6 +19,10 @@ local SKINS = {
     {227/255, 23/255, 10/255},
 }
 
+local fonts = {}
+fonts.system = love.graphics.newFont("res/Cormorant-Regular.ttf", 20)
+fonts.title = love.graphics.newFont("res/Cormorant-Light.ttf", 48)
+
 function scene.new()
     local self = base_scene.new("Title")
     setmetatable(self, scene)
@@ -149,6 +153,8 @@ function scene:update(dt)
 end
 
 function scene:draw()
+    love.graphics.setFont(fonts.system)
+    local w = love.graphics.getWidth()
     for i, player in pairs(self.party) do
         local x = 24 + (i-1) * 128
         love.graphics.setColor(1, 1, 1)
@@ -158,11 +164,26 @@ function scene:draw()
         love.graphics.rectangle("fill", x + 4, 64, 120, 3)
         if player.ready then
             love.graphics.setColor(1, 1, 1)
-            love.graphics.printf("READY", x, 192, 128, "center")
+            love.graphics.printf(T"READY", x, 192, 128, "center")
         end
     end
+
+    love.graphics.setFont(fonts.title)
+    love.graphics.printf(T"~  Delve  ~", 0, 64, w, "center")
+
+    love.graphics.setFont(fonts.system)
     if self.all_ready then
-        love.graphics.printf("READY", 0, love.graphics.getHeight() - 32, love.graphics.getWidth(), "center")
+        love.graphics.printf(T"READY", 0, love.graphics.getHeight() - 32, w, "center")
+    end
+    if love.joystick.getJoystickCount() == 0 then
+        local y = love.graphics.getHeight() / 2
+        love.graphics.printf(T"This game requires controllers to play.", 0, y - 16, w, "center")
+        love.graphics.printf(T"No controllers are currently recognised.", 0, y + 16, w, "center")
+        love.graphics.printf(T"Plug in a controller, or check out the help page:", 0, y + 48, w, "center")
+        -- love.graphics.printf(T"https://github.com/IMP1/depths/README.md#controllers", 0, y + 80, w, "center")
+    elseif #self.party == 0 then
+        local y = love.graphics.getHeight() - 64
+        love.graphics.printf(T"Press any button on your controller to join.", 0, y - 16, w, "center")
     end
 end
 
