@@ -20,8 +20,8 @@ local SKINS = {
 }
 
 local fonts = {}
-fonts.system = love.graphics.newFont("res/Cormorant-Regular.ttf", 20)
-fonts.title = love.graphics.newFont("res/Cormorant-Light.ttf", 48)
+fonts.system = love.graphics.newFont("res/font/Cormorant-Regular.ttf", 20)
+fonts.title = love.graphics.newFont("res/font/Cormorant-Light.ttf", 48)
 
 function scene.new()
     local self = base_scene.new("Title")
@@ -169,9 +169,13 @@ function scene:draw()
     end
 
     love.graphics.setFont(fonts.title)
+    love.graphics.setColor(SKINS[1])
     love.graphics.printf(T"~  Delve  ~", 0, 64, w, "center")
+    love.graphics.setColor(SKINS[4])
+    love.graphics.printf(T"Delve", 0, 64, w, "center")
 
     love.graphics.setFont(fonts.system)
+    love.graphics.setColor(SKINS[4])
     if self.all_ready then
         love.graphics.printf(T"READY", 0, love.graphics.getHeight() - 32, w, "center")
     end
