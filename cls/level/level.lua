@@ -1,6 +1,11 @@
 local level = {}
 level.__index = level
 
+local floor_type = {
+    CAVES = 1,
+    -- TODO: Think of more floor types? Steal Vagente's?
+}
+
 local tile = {
     NONE        = 0,
     FLOOR       = 1,
@@ -15,14 +20,10 @@ local tile = {
     FAKE_WALL   = 8,
 }
 
-local traps = {
-    BOULDER = "boulder",
-}
-
 level.TILE_SIZE = 16
 
 level.tiles = tile
-level.traps = traps
+level.floor_types = floor_type
 
 function level.generate(options)
     local thread = love.thread.newThread("cls/level/generator.lua")

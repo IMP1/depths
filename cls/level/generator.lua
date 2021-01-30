@@ -3,7 +3,7 @@ local options = love.thread.getChannel("level-gen"):demand()
 local mst = require('lib.minimum_spanning_tree')
 
 local TILE = require('cls.level.level').tiles
-local TRAP = require('cls.level.level').traps
+local FLOOR_TYPE = require('cls.level.level').floor_types
 
 local seed = options.seed or os.time()
 math.randomseed(seed)
@@ -13,6 +13,9 @@ local MIN_HEIGHT = options.min_height or 24
 local MAX_WIDTH  = options.max_width  or 32
 local MAX_HEIGHT = options.max_height or 32
 
+
+local level_type  = options.level_type or FLOOR_TYPE.CAVES
+local level_depth = options.depth      or 1
 
 local gen = {}
 
@@ -35,6 +38,8 @@ function gen.generate()
         end
     end
 
+    level.depth = level_depth
+    level.floor_type = level_type
     level.traps = {}
     level.fake_walls = {}
     level.enemies = {}
@@ -478,7 +483,7 @@ function gen.create_columns(level)
 end
 
 function gen.create_auto_tiles(level)
-
+    -- TODO: Choose tileset from level.floor_type
 end
 
 function gen.create_content(level)
@@ -673,6 +678,7 @@ end
 
 function gen.create_enemies(level)
     gen.update_status("Adding enemies...")
+    
     -- TODO: Add random enemies (based on room size?)
     -- TODO: Add boss in boss room
 end
