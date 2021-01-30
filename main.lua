@@ -40,7 +40,7 @@ function love.load()
     love.graphics.setBackgroundColor(0.1, 0.1, 0.2)
     love.graphics.setDefaultFilter("nearest", "nearest")
     love.graphics.setLineStyle("rough")
-    local title_scene = require 'scn.title'
+    local title_scene = require('scn.title')
     scene_manager.setScene(title_scene.new())
     scene_manager.quitWithoutScene()
 end
