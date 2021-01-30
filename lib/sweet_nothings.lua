@@ -157,9 +157,9 @@ function sweet_nothings.setLanguage(languageCode)
         end
     end
     currentLanguage = languageCode
-    for k, v in pairs(lookupTable) do
-        print(k, v)
-    end
+    -- for k, v in pairs(lookupTable) do
+        -- print(k, v)
+    -- end
 end
 
 function sweet_nothings.getLanguage()
