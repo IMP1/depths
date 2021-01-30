@@ -24,7 +24,6 @@ function scene.new(party, depth)
         seed       = os.time(),
     })
 
-    -- TODO: Add a title graphic and maybe some background animations?
     return self
 end
 
