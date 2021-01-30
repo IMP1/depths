@@ -57,7 +57,7 @@ function scene:gamepadPressed(gamepad, key)
     if player.input_delay > 0 then return end
 
     if self.all_ready and key == "a" then
-        local next_scene = require('scn.level').new()
+        local next_scene = require('scn.level').new(self.party, 1)
         scene_manager.setScene(next_scene)
     end
 
