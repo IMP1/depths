@@ -1,3 +1,4 @@
+local level = require 'cls.level.level'
 local vec2 = require 'lib.vec2'
 
 local physics_object = {}
@@ -14,8 +15,14 @@ function physics_object.new(x, y, radius, mass)
     return self
 end
 
-function physics_object:is_at_tile(x, y, tile_size)
-    return self.position / tile_size
+function physics_object:tile_position()
+    local x, y = self.position / level.TILE_SIZE
+    return math.floor(x), math.floor(y)
+end
+
+function physics_object:is_at_tile(x, y)
+    local ox, oy = self:tile_position()
+    return x == ox and y == oy
 end
 
 function physics_object:is_at_pixel(x, y, leeway)
