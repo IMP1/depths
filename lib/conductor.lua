@@ -107,8 +107,19 @@ function conductor.keypressed(key, is_repeat)
         current_scene:keyPressed(key, is_repeat)
     end
     for _, scene in pairs(scene_stack) do
-        if scene and scene.backgroundKeypressed and scene ~= current_scene then
+        if scene and scene.backgroundKeyPressed and scene ~= current_scene then
             scene:backgroundKeyPressed(key, is_repeat)
+        end
+    end
+end
+
+function conductor.keyreleased(key, is_repeat)
+    if current_scene and current_scene.keyReleased then 
+        current_scene:keyReleased(key, is_repeat)
+    end
+    for _, scene in pairs(scene_stack) do
+        if scene and scene.backgroundKeyReleased and scene ~= current_scene then
+            scene:backgroundKeyReleased(key, is_repeat)
         end
     end
 end
@@ -120,6 +131,28 @@ function conductor.textinput(text)
     for _, scene in pairs(scene_stack) do
         if scene and scene.backgroundKeyTyped and scene ~= current_scene then
             scene:backgroundKeyTyped(text)
+        end
+    end
+end
+
+function conductor.mousepressed(mx, my, key)
+    if current_scene and current_scene.mousePressed then
+        current_scene:mousePressed(mx, my, key)
+    end
+    for _, scene in pairs(scene_stack) do
+        if scene and scene.backgroundMousePressed and scene ~= current_scene then
+            scene:backgroundMousePressed(mx, my, key)
+        end
+    end
+end
+
+function conductor.mousemoved(mx, my, dx, dy)
+    if current_scene and current_scene.mouseMoved then
+        current_scene:mouseMoved(mx, my, dx, dy)
+    end
+    for _, scene in pairs(scene_stack) do
+        if scene and scene.backgroundMouseMoved and scene ~= current_scene then
+            scene:backgroundMouseMoved(mx, my, dx, dy)
         end
     end
 end
@@ -154,6 +187,94 @@ function conductor.wheelmoved(dx, dy)
     for _, scene in pairs(scene_stack) do
         if scene and scene.backgroundMouseScrolled and scene ~= current_scene then
             scene:backgroundMouseScrolled(mx, my, dx, dy)
+        end
+    end
+end
+
+function conductor.joystickadded(joystick)
+    if current_scene and current_scene.gamepadAdded then
+        current_scene:gamepadAdded(joystick)
+    end
+    for _, scene in pairs(scene_stack) do
+        if scene and scene.backgroundGamepadAdded and scene ~= current_scene then
+            scene:backgroundGamepadAdded(joystick)
+        end
+    end
+end
+
+function conductor.joystickremoved(joystick)
+    if current_scene and current_scene.gamepadRemoved then
+        current_scene:gamepadRemoved(joystick)
+    end
+    for _, scene in pairs(scene_stack) do
+        if scene and scene.backgroundGamepadRemoved and scene ~= current_scene then
+            scene:backgroundGamepadRemoved(joystick)
+        end
+    end
+end
+
+function conductor.gamepadpressed(joystick, button)
+    if current_scene and current_scene.gamepadPressed then
+        current_scene:gamepadPressed(joystick, button)
+    end
+    for _, scene in pairs(scene_stack) do
+        if scene and scene.backgroundGamepadPressed and scene ~= current_scene then
+            scene:backgroundGamepadPressed(joystick, button)
+        end
+    end
+end
+
+function conductor.gamepadreleased(joystick, button)
+    if current_scene and current_scene.gamepadReleased then
+        current_scene:gamepadReleased(joystick, button)
+    end
+    for _, scene in pairs(scene_stack) do
+        if scene and scene.backgroundGamepadReleased and scene ~= current_scene then
+            scene:backgroundGamepadReleased(joystick, button)
+        end
+    end
+end
+
+function conductor.gamepadaxis(joystick, axis, value)
+    if current_scene and current_scene.gamepadAxis then
+        current_scene:gamepadAxis(joystick, axis, value)
+    end
+    for _, scene in pairs(scene_stack) do
+        if scene and scene.backgroundGamepadAxis and scene ~= current_scene then
+            scene:backgroundGamepadAxis(joystick, axis, value)
+        end
+    end
+end
+
+function conductor.touchmoved(id, x, y, dx, dy, pressure)
+    if current_scene and current_scene.touchMoved then
+        current_scene:touchMoved(id, x, y, dx, dy, pressure)
+    end
+    for _, scene in pairs(scene_stack) do
+        if scene and scene.backgroundTouchMoved and scene ~= current_scene then
+            scene:backgroundTouchMoved(id, x, y, dx, dy, pressure)
+        end
+    end
+end
+
+function conductor.touchpressed(id, x, y, dx, dy, pressure)
+    if current_scene and current_scene.touchPressed then
+        current_scene:touchPressed(id, x, y, dx, dy, pressure)
+    end
+    for _, scene in pairs(scene_stack) do
+        if scene and scene.backgroundTouchPressed and scene ~= current_scene then
+            scene:backgroundTouchPressed(id, x, y, dx, dy, pressure)
+        end
+    end
+end
+
+function conductor.touchreleased(id, x, y, dx, dy, pressure)
+    if current_scene and current_scene.touchReleased then
+        current_scene:touchReleased(id, x, y, dx, dy, pressure)
+    end
+    for _, scene in pairs(scene_stack) do
+        if scene and scene.backgroundTouchReleased and scene ~= current_scene then
+            scene:backgroundTouchReleased(id, x, y, dx, dy, pressure)
         end
     end
 end

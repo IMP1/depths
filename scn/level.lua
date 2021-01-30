@@ -7,7 +7,7 @@ local scene = {}
 setmetatable(scene, base_scene)
 scene.__index = scene
 
-function scene.new()
+function scene.new(party, depth)
     local self = base_scene.new("Level")
     setmetatable(self, scene)
 
@@ -20,7 +20,8 @@ function scene.new()
         max_width  = 32,
         max_height = 32,
         level_type = level.floor_types.CAVES,
-        seed = os.time(),
+        depth      = depth or 1,
+        seed       = os.time(),
     })
 
     -- TODO: Add a title graphic and maybe some background animations?
