@@ -35,11 +35,11 @@ function destroyable_object:damage(amount)
     -- TODO: Add popup to scene? Maybe whatever calls this handles that
 end
 
-function destroyable_object:heal(amount, can_restore)
-    if self.destroyed and can_restore and amount > 0 then
+function destroyable_object:heal(amount, revive)
+    if self.destroyed and revive and amount > 0 then
         self.destroyed = false
-        self:damage(-amount)
-    elseif not self.destroyed then
+    end
+    if not self.destroyed then
         self:damage(-amount)
     end
 end
