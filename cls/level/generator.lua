@@ -68,8 +68,11 @@ function gen.get_tile(level, x, y)
     return TILE.NONE
 end
 
-function gen.is_wall(level, x, y)
+function gen.is_wall(level, x, y, include_fakes)
     local t = gen.get_tile(level, x, y)
+    if include_fakes and t == TILE.FAKE_WALL then
+        return true
+    end
     return t == TILE.WALL_TOP or t == TILE.WALL_SIDE
 end
 
@@ -483,7 +486,62 @@ function gen.create_columns(level)
 end
 
 function gen.create_auto_tiles(level)
-    -- TODO: Choose tileset from level.floor_type
+    level.auto_tiles.floor = {}
+    level.auto_tiles.ceiling = {}
+    for j, row in pairs(level.tiles) do
+        level.auto_tiles.floor[j] = {}
+        level.auto_tiles.ceiling[j] = {}
+        for i, t in pairs(row) do
+            level.auto_tiles.floor[j][i] = gen.floor_autotile_value(level, i, j)
+            level.auto_tiles.ceiling[j][i] = gen.ceiling_autotile_value(level, i, j)
+        end
+    end
+end
+
+function gen.floor_autotile_value(level, i, j)
+    -- TODO: Get tileset from level.floor_type
+    -- TODO: A tileset might have different/more floor tiles
+    if level.start_position.x == i and level.start_position.y == j then
+        return 1
+    end
+    if level.end_position.x == i and level.end_position.y == j then
+        return 2
+    end
+    if level.floor_type == FLOOR_TYPE.CAVES then
+        if gen.is_floor(level, i, j) then
+            if math.random() < 0.02 then
+                return 5
+            elseif math.random() < 0.02 then
+                return 4
+            else
+                return 3
+            end
+        end
+        if gen.is_wall(level, i, j, true) then
+            local binary_flag_sum = 0
+            -- TODO: Go through adjacent tiles and check for wall (including fakes)
+            -- right = 1, down = 2, left = 4, up = 8
+            return binary_flag_sum + 8
+        end
+    -- TODO: Handle other map types
+    end
+    return 0
+end
+
+function gen.ceiling_autotile_value(level, i, j)
+    for j, row in pairs(level.tiles) do
+        for i, t in pairs(row) do
+            if level.floor_type == FLOOR_TYPE.CAVES then
+                if gen.is_wall(level, i, j+1, true) then
+                    local binary_flag_sum = 0
+                    -- TODO: Go through adjacent tiles and check for wall (including fakes)
+                    -- right = 1, down = 2, left = 4, up = 8
+                    return binary_flag_sum
+                end
+            -- TODO: Handle other map types
+            end
+        end
+    end
 end
 
 function gen.create_content(level)
