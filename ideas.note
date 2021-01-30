@@ -6,6 +6,38 @@ Add a 'cleave' mechanic, where if something does overkill damage,
 and there are nearby damagable objects (with option for friendly fire or not),
 they also recieve some of the leftover damage
 
+Actors can have states applied to them:
+
+  * Burning (inflicts damage over time, adds fire damage to any attacks and has risk of spreading to nearby burnable things)
+  * Mad (see enemies where there are none. See allies as enemies)
+  * Poison (deal damage over time - heals undead)
+  * X-ray vision (see through walls)
+  * Blind (reduced vision down to 1-2 tiles)
+  * Drunk (motion is all backwards)
+  * Healing (gain health over time - does damage to undead)
+  * Enraged
+
+## Classes
+
+Knight: Slow movement, block, swords, shields
+Ranger: Fast movement, dodge (roll), daggers/bows
+Wizard: Medium movement, spells, spells
+
+(Unlockable other cool ideas)
+Wraith: Medium movement, doesn't trigger traps, spells, undead
+Savage: Fast movement, can transform into animals, and use their abilities, no weapons
+
+(When character dies in multiplayer)
+Ghost: Medium movement, cannot attack, can move through walls.
+
+
+## Enemies
+
+Little gobliny-slimey monster things
+Ranged skeletons (throwing bones?)
+Summoners and their summons (summons die if summoner dies)
+
+
 ## Traps
 
 What happens when a boulder goes over spikes?
