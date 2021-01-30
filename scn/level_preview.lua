@@ -7,8 +7,8 @@ local scene = {}
 setmetatable(scene, base_scene)
 scene.__index = scene
 
-function scene.new(party, depth)
-    local self = base_scene.new("Level")
+function scene.new(depth)
+    local self = base_scene.new("Level Preview")
     setmetatable(self, scene)
 
     self.map = nil
