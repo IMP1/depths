@@ -17,4 +17,8 @@ function swinging_trap.new(x, y, direction)
     return self
 end
 
+function swinging_trap:draw()
+    -- TODO: Draw a pressure plate
+end
+
 return swinging_trap
