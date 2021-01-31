@@ -56,6 +56,7 @@ function gen.generate()
     gen.create_layout(level)
     gen.create_auto_tiles(level)
     gen.create_content(level)
+    gen.finalise(level)
 
     gen.update_status("Finished.")
     return level
@@ -157,7 +158,7 @@ end
 
 function gen.is_trap_at(level, x, y)
     for _, t in pairs(level.traps) do
-        if t:is_at_tile(x, y) then 
+        if t.temp_obj:is_at_tile(x, y) then 
             return true 
         end
     end
@@ -518,10 +519,13 @@ function gen.floor_autotile_value(level, i, j)
             end
         end
         if gen.is_wall(level, i, j, true) then
-            local binary_flag_sum = 0
-            -- TODO: Go through adjacent tiles and check for wall (including fakes)
-            -- right = 1, down = 2, left = 4, up = 8
-            return binary_flag_sum + 8
+            if math.random() < 0.02 then
+                return 10
+            elseif math.random() < 0.02 then
+                return 9
+            else
+                return 8
+            end
         end
     -- TODO: Handle other map types
     end
@@ -532,11 +536,21 @@ function gen.ceiling_autotile_value(level, i, j)
     for j, row in pairs(level.tiles) do
         for i, t in pairs(row) do
             if level.floor_type == FLOOR_TYPE.CAVES then
-                if gen.is_wall(level, i, j+1, true) then
+                if gen.is_wall(level, i, j, true) then
                     local binary_flag_sum = 0
-                    -- TODO: Go through adjacent tiles and check for wall (including fakes)
-                    -- right = 1, down = 2, left = 4, up = 8
-                    return binary_flag_sum
+                    if not gen.is_wall(level, i + 1, j, true) then
+                        binary_flag_sum = binary_flag_sum + 1
+                    end
+                    if not gen.is_wall(level, i, j + 1, true) then
+                        binary_flag_sum = binary_flag_sum + 2
+                    end
+                    if not gen.is_wall(level, i - 1, j, true) then
+                        binary_flag_sum = binary_flag_sum + 4
+                    end
+                    if not gen.is_wall(level, i, j - 1, true) then
+                        binary_flag_sum = binary_flag_sum + 8
+                    end
+                    return binary_flag_sum + 16
                 end
             -- TODO: Handle other map types
             end
@@ -621,7 +635,11 @@ function gen.create_boulder_trap(level, room)
     end
 
     if gen.is_floor(level, trap_x, trap_y) and gen.is_floor(level, boulder_x, boulder_y) then
-        local trap = require('cls.trap.boulder').new(trap_x, trap_y, boulder_x, boulder_y)
+        local trap = {
+            class = 'cls.trap.boulder',
+            args = {trap_x, trap_y, boulder_x, boulder_y},
+            temp_obj = require('cls.trap.boulder').new(trap_x, trap_y, boulder_x, boulder_y),
+        }
         table.insert(level.traps, trap)
     end
 end
@@ -635,7 +653,11 @@ function gen.create_spike_traps(level)
             local too_near_exit = math.abs(i - level.start_position.x) + math.abs(j - level.start_position.y) < min_distance_from_exit and 
                                   math.abs(i - level.end_position.x) + math.abs(j - level.end_position.y) < min_distance_from_exit
             if gen.is_floor(level, i, j) and not occupied and not too_near_exit and math.random() < probability then
-                local trap = require('cls.trap.spike').new(i, j)
+                local trap = {
+                    class = 'cls.trap.spike',
+                    args = {i, j},
+                    temp_obj = require('cls.trap.spike').new(i, j),
+                }
                 table.insert(level.traps, trap)
             end
         end
@@ -671,10 +693,18 @@ function gen.create_swinging_traps(level)
                                        gen.is_wall(level, i+1, j-1) and
                                        gen.is_wall(level, i+1, j+1)
             if vertical_passage and math.random() < probability then
-                local trap = require('cls.trap.swinging').new(i, j, 0)
+                local trap = {
+                    class = 'cls.trap.swinging',
+                    args = {i, j, 0},
+                    temp_obj = require('cls.trap.swinging').new(i, j, 0),
+                }
                 table.insert(level.traps, trap)
             elseif horizontal_passage and math.random() < probability then
-                local trap = require('cls.trap.swinging').new(i, j, 1)
+                local trap = {
+                    class = 'cls.trap.swinging',
+                    args = {i, j, 1},
+                    temp_obj = require('cls.trap.swinging').new(i, j, 1),
+                }
                 table.insert(level.traps, trap)
             end
         end
@@ -730,7 +760,11 @@ function gen.create_arrow_trap(level, trap_x, trap_y)
         return
     end
 
-    local trap = require('cls.trap.arrow').new(trap_x, trap_y, arrow_x, arrow_y)
+    local trap = {
+        class = 'cls.trap.arrow',
+        args = {trap_x, trap_y, arrow_x, arrow_y},
+        temp_obj = require('cls.trap.arrow').new(trap_x, trap_y, arrow_x, arrow_y),
+    }
     table.insert(level.traps, trap)
 end
 
@@ -746,6 +780,11 @@ function gen.create_treasure(level)
 end
 
 
+function gen.finalise(level)
+    for _, trap in pairs(level.traps) do
+        trap.temp_obj = nil
+    end
+end
 
 
 local level = gen.generate()
