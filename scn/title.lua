@@ -10,7 +10,7 @@ scene.__index = scene
 local MAX_PARTY_SIZE = 4
 local INPUT_DELAY = 0.2
 
--- TODO: Remove this when skins have been implemented. Currently just uses colours
+-- TODO: Transition this into a colour palette when skins have been implemented.
 local SKINS = {
     {94/255, 76/255, 90/255},
     {85/255, 145/255, 127/255},
@@ -34,6 +34,10 @@ function scene.new()
 
     -- TODO: Add a title graphic and maybe some background animations?
     return self
+end
+
+function scene:load(...)
+    love.graphics.setBackgroundColor(0.1, 0.1, 0.1)
 end
 
 function scene:gamepadPressed(gamepad, key)
@@ -156,15 +160,20 @@ function scene:draw()
     love.graphics.setFont(fonts.system)
     local w = love.graphics.getWidth()
     for i, player in pairs(self.party) do
-        local x = 24 + (i-1) * 128
-        love.graphics.setColor(1, 1, 1)
-        love.graphics.rectangle("line", x, 24, 128, 256)
-        love.graphics.printf(self.available_character_classes[player.class_id], x, 32, 128, "center")
+        local w = love.graphics.getWidth() / 5
+        local h = 400
+        local x = 24 + (i-1) * (w + 32)
+        local y = love.graphics.getHeight() - h - 64
+        love.graphics.setColor(0.9, 0.9, 0.9)
+        love.graphics.rectangle("line", x, y, w, h)
+        love.graphics.printf(self.available_character_classes[player.class_id], x, y + 8, w, "center")
         love.graphics.setColor(SKINS[player.skin_id])
-        love.graphics.rectangle("fill", x + 4, 64, 120, 3)
+        love.graphics.rectangle("fill", x + 4, y + 40, w - 8, 3)
         if player.ready then
+            love.graphics.setColor(0, 0, 0, 0.5)
+            love.graphics.rectangle("fill", x + 1, y + 168 - 12, w - 2, 48)
             love.graphics.setColor(1, 1, 1)
-            love.graphics.printf(T"READY", x, 192, 128, "center")
+            love.graphics.printf(T"READY", x, y + 168, w, "center")
         end
     end
 
