@@ -45,10 +45,30 @@ function level.new(options)
     self.end_position = options.end_position
     self.boss_position = options.boss_position
     self.auto_tiles = options.auto_tiles
-    self.fake_walls = options.fake_walls
-    self.traps = options.traps
-    self.enemies = options.enemies
-    self.treasure = options.treasure
+    self.fake_walls = {}
+    for _, fake_wall in pairs(options.fake_walls) do
+        local class = fake_wall.class
+        local args = fake_wall.args
+        table.insert(self.fake_walls, require(class).new(unpack(args)))
+    end
+    self.traps = {}
+    for _, trap in pairs(options.traps) do
+        local class = trap.class
+        local args = trap.args
+        table.insert(self.traps, require(class).new(unpack(args)))
+    end
+    self.enemies = {}
+    for _, enemy in pairs(options.enemies) do
+        local class = enemy.class
+        local args = enemy.args
+        table.insert(self.enemies, require(class).new(unpack(args)))
+    end
+    self.treasure = {}
+    for _, treasure in pairs(options.treasure) do
+        local class = treasure.class
+        local args = treasure.args
+        table.insert(self.treasure, require(class).new(unpack(args)))
+    end
 
     return self
 end
