@@ -20,8 +20,10 @@ local SKINS = {
 }
 
 local fonts = {}
-fonts.system = love.graphics.newFont("res/font/Cormorant-Regular.ttf", 20)
-fonts.title = love.graphics.newFont("res/font/Cormorant-Light.ttf", 48)
+fonts.system = love.graphics.newFont("res/fonts/Cormorant-Regular.ttf", 20)
+fonts.title = love.graphics.newFont("res/fonts/Cormorant-Light.ttf", 48)
+
+local BGM = love.audio.newSource("res/music/From Here.ogg", "stream")
 
 function scene.new()
     local self = base_scene.new("Title")
@@ -38,6 +40,7 @@ end
 
 function scene:load(...)
     love.graphics.setBackgroundColor(0.1, 0.1, 0.1)
+    BGM:play()
 end
 
 function scene:gamepadPressed(gamepad, key)
@@ -166,6 +169,7 @@ function scene:draw()
         local y = love.graphics.getHeight() - h - 64
         love.graphics.setColor(0.9, 0.9, 0.9)
         love.graphics.rectangle("line", x, y, w, h)
+        -- TODO: Draw left and right arrows
         love.graphics.printf(self.available_character_classes[player.class_id], x, y + 8, w, "center")
         love.graphics.setColor(SKINS[player.skin_id])
         love.graphics.rectangle("fill", x + 4, y + 40, w - 8, 3)
