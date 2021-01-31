@@ -13,11 +13,10 @@ local tile = {
     FLOOR_END   = 3,
     FLOOR_BOSS  = 4,
     FLOOR_HALL  = 5,
-    WALL_TOP    = 6,
-    WALL_SIDE   = 7,
-    COLUMN_TOP  = 6,
-    COLUMN_SIDE = 7,
-    FAKE_WALL   = 8,
+    WALL        = 6,
+    COLUMN_TOP  = 7,
+    COLUMN_SIDE = 8,
+    FAKE_WALL   = 9,
 }
 
 level.TILE_SIZE = 16
@@ -37,6 +36,8 @@ function level.new(options)
     local self = {}
     setmetatable(self, level)
 
+    self.depth = options.depth
+    self.floor_type = options.floor_type
     self.tiles = options.tiles
     self.seed = options.seed
     self.rooms = options.rooms -- Shouldn't be needed outside of level generation (and its testing). TODO: Remove when finished
@@ -70,7 +71,27 @@ function level.new(options)
         table.insert(self.treasure, require(class).new(unpack(args)))
     end
 
+    if self.floor_type == floor_type.CAVES then
+        self.tilemap = love.graphics.newImage("res/tiles/caves1.png")
+    end
+    self:create_auto_tiles()
+
     return self
+end
+
+function level:create_auto_tiles()
+    self.tilemap_quads = {}
+    local tilemap_width = self.tilemap:getWidth()
+    local tilemap_height = self.tilemap:getHeight()
+    local qw, qh = self.TILE_SIZE, self.TILE_SIZE
+    local quads_wide = math.floor(tilemap_width / qw)
+    for j = 0, math.floor(tilemap_height / qh) do
+        for i = 0, quads_wide do
+            local n = j * quads_wide + i
+            local x, y = i * qw, j * qh
+            self.tilemap_quads[n] = love.graphics.newQuad(x, y, qw, qh, tilemap_width, tilemap_height)
+        end
+    end
 end
 
 function level:refresh_auto_tiles()

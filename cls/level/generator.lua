@@ -74,7 +74,7 @@ function gen.is_wall(level, x, y, include_fakes)
     if include_fakes and t == TILE.FAKE_WALL then
         return true
     end
-    return t == TILE.WALL_TOP or t == TILE.WALL_SIDE
+    return t == TILE.WALL
 end
 
 function gen.is_exit(level, x, y)
@@ -198,7 +198,7 @@ function gen.create_rooms(level)
         local w = 3 + math.random(4)
         local h = 2 + math.random(4)
         local tile_type = TILE.FLOOR
-        if math.random() < no_room_prob then tile_type = TILE.WALL_TOP end
+        if math.random() < no_room_prob then tile_type = TILE.WALL end
         gen.add_random_room(level, w, h, tile_type)
     end
     local medium_room_count = 4 + math.random(4)
@@ -206,7 +206,7 @@ function gen.create_rooms(level)
         local w = 2 + math.random(3)
         local h = 1 + math.random(5)
         local tile_type = TILE.FLOOR
-        if math.random() < no_room_prob then tile_type = TILE.WALL_TOP end
+        if math.random() < no_room_prob then tile_type = TILE.WALL end
         gen.add_random_room(level, w, h, tile_type)
     end
     local small_room_count = 7 + math.floor(math.random() * 4)
@@ -214,7 +214,7 @@ function gen.create_rooms(level)
         local w = 1 + math.random(2)
         local h = 1 + math.random(2)
         local tile_type = TILE.FLOOR
-        if math.random() < no_room_prob then tile_type = TILE.WALL_TOP end
+        if math.random() < no_room_prob then tile_type = TILE.WALL end
         gen.add_random_room(level, w, h, tile_type)
     end
     -- Add long 'corridor' rooms
@@ -272,7 +272,7 @@ end
 function gen.add_room(level, x, y, width, height, floor_type, wall_type)
     for j = y - 1, y + height + 1 do
         for i = x - 1, x + width + 1 do
-            gen.set_tile(level, i, j, wall_type or TILE.WALL_TOP)
+            gen.set_tile(level, i, j, wall_type or TILE.WALL)
         end
     end
     for j = y, y + height do
@@ -429,7 +429,7 @@ function gen.fill_empty_space(level)
     for j = 1, level.height do
         for i = 1, level.width do
             if gen.get_tile(level, i, j) == TILE.NONE then
-                gen.set_tile(level, i, j, TILE.WALL_TOP)
+                gen.set_tile(level, i, j, TILE.WALL)
             end
         end
     end
@@ -510,7 +510,7 @@ function gen.floor_autotile_value(level, i, j)
     end
     if level.floor_type == FLOOR_TYPE.CAVES then
         if gen.is_floor(level, i, j) then
-            if math.random() < 0.02 then
+            if math.random() < 0.01 then
                 return 5
             elseif math.random() < 0.02 then
                 return 4
@@ -533,29 +533,26 @@ function gen.floor_autotile_value(level, i, j)
 end
 
 function gen.ceiling_autotile_value(level, i, j)
-    for j, row in pairs(level.tiles) do
-        for i, t in pairs(row) do
-            if level.floor_type == FLOOR_TYPE.CAVES then
-                if gen.is_wall(level, i, j, true) then
-                    local binary_flag_sum = 0
-                    if not gen.is_wall(level, i + 1, j, true) then
-                        binary_flag_sum = binary_flag_sum + 1
-                    end
-                    if not gen.is_wall(level, i, j + 1, true) then
-                        binary_flag_sum = binary_flag_sum + 2
-                    end
-                    if not gen.is_wall(level, i - 1, j, true) then
-                        binary_flag_sum = binary_flag_sum + 4
-                    end
-                    if not gen.is_wall(level, i, j - 1, true) then
-                        binary_flag_sum = binary_flag_sum + 8
-                    end
-                    return binary_flag_sum + 16
-                end
-            -- TODO: Handle other map types
+    if level.floor_type == FLOOR_TYPE.CAVES then
+        if gen.is_wall(level, i, j, true) then
+            local binary_flag_sum = 0
+            if not gen.is_wall(level, i + 1, j, true) then
+                binary_flag_sum = binary_flag_sum + 1
             end
+            if not gen.is_wall(level, i, j + 1, true) then
+                binary_flag_sum = binary_flag_sum + 2
+            end
+            if not gen.is_wall(level, i - 1, j, true) then
+                binary_flag_sum = binary_flag_sum + 4
+            end
+            if not gen.is_wall(level, i, j - 1, true) then
+                binary_flag_sum = binary_flag_sum + 8
+            end
+            return binary_flag_sum + 16
         end
+    -- TODO: Handle other map types
     end
+    return nil
 end
 
 function gen.create_content(level)

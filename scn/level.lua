@@ -15,6 +15,7 @@ function scene.new(party, depth)
     self.map = nil
     self.map_generator_status = "Pending"
     self.camera = camera.new()
+    self.camera:scale(2)
     self.map_generator = level.generate({
         min_width  = 24,
         min_height = 24,
@@ -43,13 +44,43 @@ function scene.new(party, depth)
     return self
 end
 
+local function reveal_map(self)
+    for j, row in pairs(self.visible) do
+        for i, tile in pairs(row) do
+            self.visited[j][i] = true
+            self.visible[j][i] = true
+        end
+    end
+end
+
 function scene:load()
     love.graphics.setBackgroundColor(0.25, 0.25, 0.3)
+end
+
+-- TODO: HANDLE PLAYER INPUT
+
+function scene:keyPressed(key)
+    if key == "r" then
+        reveal_map(self)
+    end
 end
 
 function scene:update(dt)
     if self.map then
         self:update_game(dt)
+        -- TODO: DEBUGGING, REMOVE:
+        if love.keyboard.isDown("w") then
+            self.camera:move(0, -dt * 128)
+        end
+        if love.keyboard.isDown("a") then
+            self.camera:move(-dt * 128, 0)
+        end
+        if love.keyboard.isDown("s") then
+            self.camera:move(0, dt * 128)
+        end
+        if love.keyboard.isDown("d") then
+            self.camera:move(dt * 128, 0)
+        end
     else
         self:update_level_generation()
     end
@@ -140,8 +171,10 @@ function scene:draw_map()
         for i, t in pairs(row) do
             if self.visited[j][i] then
                 local x, y = i * tile_size, j * tile_size
+                local autotile = self.map.auto_tiles.floor[j][i]
                 love.graphics.setColor(1, 1, 1)
-                self:draw_tile(x, y, self.map.autotiles[j][i])
+                love.graphics.draw(self.map.tilemap, self.map.tilemap_quads[autotile], x, y)
+                -- self:draw_tile(x, y, self.map.auto_tiles.floor[j][i])
                 if not self.visible[j][i] then
                     love.graphics.setColor(0, 0, 0, 0.25)
                     love.graphics.rectangle("fill", x, y, tile_size, tile_size)
@@ -165,12 +198,25 @@ function scene:draw_map()
     for _, animation in pairs(self.animations) do
         animation:draw()
     end
+    for j, row in pairs(self.map.tiles) do
+        for i, t in pairs(row) do
+            if self.visited[j][i] then
+                local x, y = i * tile_size, j * tile_size
+                local autotile = self.map.auto_tiles.ceiling[j][i]
+                love.graphics.setColor(1, 1, 1)
+                if autotile then
+                    love.graphics.draw(self.map.tilemap, self.map.tilemap_quads[autotile], x, y - tile_size)
+                end
+            end
+        end
+    end
     for _, popup in pairs(self.popups) do
         popup:draw()
     end
 end
 
 function scene:draw_tile(x, y, autotile)
+    print(autotile)
     
 end
 
