@@ -31,28 +31,28 @@ end
 
 function spike_trap:update(dt, game)
     trap.update(dt, game)
-    if self.animation:is_playing() then
-        self.animation:update(dt)
-        if self.animation.current_frame == DAMAGE_FRAME and not self.hit then
-            self.hit = true
-        end
-        if self.animation.finished then
-            self.triggered = false
-        end
-    end
+    -- if self.animation:is_playing() then
+        -- self.animation:update(dt)
+        -- if self.animation.current_frame == DAMAGE_FRAME and not self.hit then
+            -- self.hit = true
+        -- end
+        -- if self.animation.finished then
+            -- self.triggered = false
+        -- end
+    -- end
 end
 
 function spike_trap:trigger(scene)
-    if not self.animation:is_playing() then
-        self.animation:reset()
-        self.animation:start()
-        self.hit = false
-        self.triggered = true
-    end
+    -- if not self.animation:is_playing() then
+    --     self.animation:reset()
+    --     self.animation:start()
+    --     self.hit = false
+    --     self.triggered = true
+    -- end
 end
 
 function spike_trap:draw()
-    self.animation:draw(self.trigger_position.x, self.trigger_position.y)
+    -- self.animation:draw(self.trigger_position.x, self.trigger_position.y)
 end
 
 return spike_trap
