@@ -1,7 +1,7 @@
-local trap = require 'cls.trap._base'
 local animation = require 'lib.animation'
-local vec2 = require 'lib.vec2'
-local boulder = require 'cls.projectile.boulder'
+local vec2      = require 'lib.vec2'
+local trap      = require 'cls.trap._base'
+local arrow     = require 'cls.projectile.arrow'
 
 local arrow_trap = {}
 setmetatable(arrow_trap, trap)
@@ -20,7 +20,7 @@ function arrow_trap:trigger(scene)
     if self.triggered then return end
     self.triggered = true
 
-    -- TODO: Add arror to scene
+    -- TODO: Add arrow to scene
 end
 
 function arrow_trap:is_at_tile(i, j)
