@@ -78,7 +78,7 @@ function scene:draw()
         love.graphics.push()
         love.graphics.translate(100, 100)
         self.camera:set()
-        self.map:draw(SCALE)
+        self:draw_map(SCALE)
         self.camera:unset()
         if love.keyboard.isDown("c") then
             for source_index, source in pairs(self.map.rooms) do
@@ -124,6 +124,62 @@ function scene:draw()
         love.graphics.printf(self.map_generator_status, 0, 64, love.graphics.getWidth(), "center")
     end
     love.graphics.print("Mouse Position: " .. wx .. ", " .. wy, 0, 16)
+end
+
+function scene:draw_map(tile_size)
+    local tile = level.tiles
+    local s = tile_size or 1
+    for j, row in pairs(self.map.tiles) do
+        for i, t in pairs(row) do
+            if t == tile.NONE then
+                love.graphics.setColor(0, 0, 0)
+            elseif t == tile.FLOOR then
+                love.graphics.setColor(0.6, 0.6, 0.6)
+            elseif t == tile.FLOOR_START then
+                love.graphics.setColor(0.5, 0.8, 0.5)
+            elseif t == tile.FLOOR_END then
+                love.graphics.setColor(0.8, 0.5, 0.4)
+            elseif t == tile.FLOOR_BOSS then
+                love.graphics.setColor(0.5, 0.5, 0.8)
+            elseif t == tile.FLOOR_HALL then
+                love.graphics.setColor(0.6, 0.6, 0.6)
+            elseif t == tile.WALL_TOP then
+                love.graphics.setColor(0.4, 0.4, 0.4)
+            elseif t == tile.WALL_SIDE then
+                love.graphics.setColor(0.3, 0.3, 0.3)
+            elseif t == tile.FAKE_WALL then
+                love.graphics.setColor(0.4, 0.2, 0.2)
+            else 
+                love.graphics.setColor(1, 0, 0)
+            end
+            love.graphics.rectangle("fill", (i-1) * s, (j-1) * s, s, s)
+        end
+    end
+    love.graphics.setColor(0, 0, 0, 0.5)
+    love.graphics.rectangle("line", (self.map.start_position.x - 1) * s, (self.map.start_position.y - 1) * s, s, s)
+    love.graphics.rectangle("line", (self.map.end_position.x - 1) * s, (self.map.end_position.y - 1) * s, s, s)
+
+    for _, trap in pairs(self.map.traps) do
+        local x, y = unpack(trap.trigger_position.data)
+        love.graphics.setColor(1, 0, 0, 0.4)
+        love.graphics.rectangle("fill", (x-1)*s, (y-1)*s, s, s)
+        if love.keyboard.isDown("t") then
+            if trap.boulder_position then
+                local bx, by = unpack(trap.boulder_position.data)
+                love.graphics.setColor(1, 0, 0, 0.4)
+                love.graphics.rectangle("fill", (bx-1)*s, (by-1)*s, s, s)
+                love.graphics.line((x-0.5)*s, (y-0.5)*s, (bx-0.5)*s, (by-0.5)*s)
+            end
+            if trap.arrow_position then
+                local ax, ay = unpack(trap.arrow_position.data)
+                love.graphics.setColor(1, 0, 0, 0.4)
+                love.graphics.rectangle("fill", (ax-1)*s, (ay-1)*s, s, s)
+                love.graphics.line((x-0.5)*s, (y-0.5)*s, (ax-0.5)*s, (ay-0.5)*s)
+            end
+            love.graphics.setColor(0, 0, 0)
+            love.graphics.print(trap.name, (x-1)*s, (y-1)*s)
+        end
+    end
 end
 
 return scene
