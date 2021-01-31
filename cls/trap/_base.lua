@@ -36,4 +36,8 @@ function trap:is_at_tile(i, j)
     return x == i and y == j
 end
 
+function trap:draw()
+    error("`draw` method not implemented for " .. self.name .. " trap.")
+end
+
 return trap
