@@ -1,6 +1,7 @@
 local screenshake = {}
 
 local shakes = {}
+local rumbles = {}
 local rumble_x, rumble_y = 0, 0
 local total_shake_x, total_shake_y = 0, 0
 
@@ -16,6 +17,14 @@ end
 function screenshake.add_rumble(x, y)
     rumble_x = rumble_x + x
     rumble_y = rumble_y + (y or x)
+    table.insert(rumbles, {x, (y or x)})
+    return #rumbles
+end
+
+function screenshake.remove_rumble(index)
+    local x, y = unpack(rumbles[index])
+    table.remove(rumbles, index)
+    screenshake.add_rumble(-x, -y)
 end
 
 function screenshake.update(dt)
