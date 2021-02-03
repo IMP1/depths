@@ -18,10 +18,10 @@ end
 
 function trap:update(dt, game_scene)
     local x, y = unpack(self.trigger_position.data)
-    for obj in game_scene.objects_with_mass do
+    for obj in game_scene:objects_with_mass() do
         local at_least_min_mass = (self.min_triggerable_mass == nil) or (obj.mass >= self.min_triggerable_mass)
         local at_most_max_mass = (self.max_triggerable_mass == nil) or (obj.mass <= self.max_triggerable_mass)
-        if obj.is_at_tile(x, y) and at_least_min_mass and at_most_max_mass then
+        if obj:is_at_tile(x, y) and at_least_min_mass and at_most_max_mass then
             self:trigger(game_scene)
         end
     end
