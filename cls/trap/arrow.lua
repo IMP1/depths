@@ -1,5 +1,6 @@
 local animation = require 'lib.animation'
 local vec2      = require 'lib.vec2'
+local level     = require 'cls.level.level'
 local trap      = require 'cls.trap._base'
 local arrow     = require 'cls.projectile.arrow'
 
@@ -7,19 +8,20 @@ local arrow_trap = {}
 setmetatable(arrow_trap, trap)
 arrow_trap.__index = arrow_trap
 
-function arrow_trap.new(trigger_x, trigger_y, arrow_x, arrow_y)
+function arrow_trap.new(trigger_x, trigger_y, arrow_x, arrow_y, ammo)
     local self = trap.new(trigger_x, trigger_y, "Arrow", 1)
     setmetatable(self, arrow_trap)
 
     self.arrow_position = vec2(arrow_x, arrow_y)
+    self.ammo = ammo or 1
 
     return self
 end
 
 function arrow_trap:trigger(scene)
-    if self.triggered then return end
+    if self.ammo == 0 then return end
     self.triggered = true
-
+    self.ammo = self.ammo - 1
     -- TODO: Add arrow to scene
 end
 
@@ -30,8 +32,17 @@ function arrow_trap:is_at_tile(i, j)
            j >= math.min(y1, y2) and j <= math.max(y1, y2)
 end
 
-function arrow_trap:draw()
-    -- TODO: Draw a pressure plate
+function arrow_trap:draw(scene)
+    -- TODO: Draw a pressure plate if visited
+    local i, j = unpack(self.trigger_position.data)
+    if scene.visited[j][i] then
+        local x, y = (i-1) * level.TILE_SIZE, (j-1) * level.TILE_SIZE
+        love.graphics.setColor(1, 0, 0, 0.8)
+        love.graphics.rectangle("fill", x + 4, y + 4, level.TILE_SIZE - 8, level.TILE_SIZE - 8)
+    end
+
+
+    -- TODO: Draw a arrow shooty hole if visited
 end
 
 return arrow_trap
