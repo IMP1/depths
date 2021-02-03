@@ -24,7 +24,7 @@ local function raycast_visibility(self, scene, theta, visibility)
     local tile_size = require('cls.level.level').TILE_SIZE
     for r = 0, self.view_distance * tile_size do
         local i = math.floor((ox + cosine(theta) * r) / tile_size)
-        local j = math.floor((oy + sine(theta) * ) / tile_size)
+        local j = math.floor((oy + sine(theta) * r) / tile_size)
         -- if scene:is_tile_opaque(i, j)
         -- TODO: do
     end

@@ -2,6 +2,7 @@ local scene_manager = require 'lib.conductor'
 local camera        = require 'lib.camera'
 local screenshake   = require 'lib.screenshake'
 local level         = require 'cls.level.level'
+local player        = require 'cls.player'
 local base_scene    = require 'scn._base'
 
 local scene = {}
@@ -36,9 +37,11 @@ function scene.new(party, depth)
     self.enemies = {}
     -- TODO: Push gate graphic animation to close behind the players to animations
     self.players = {}
+    self.player_gamepads = {}
     for _, p in pairs(party) do
-        -- table.insert(self.players, )
-        -- TODO: Create a new player character for each player
+        local char = player.new(0, 0, 0, p.class_id, p.skin_id)
+        self.player_gamepads[p.gamepad] = char
+        table.insert(self.players, char)
     end
 
     return self
@@ -57,7 +60,37 @@ function scene:load()
     love.graphics.setBackgroundColor(0.25, 0.25, 0.3)
 end
 
+function scene:finalise_level()
+    self.visited = {}
+    self.visible = {}
+    for j, row in pairs(self.map.tiles) do
+        self.visited[j] = {}
+        self.visible[j] = {}
+        for i, t in pairs(row) do
+            self.visited[j][i] = false
+            self.visible[j][i] = false
+        end
+    end
+    self.enemies = self.map.enemies
+    self.traps = self.map.traps
+    -- Setup Players
+    local start_x = (self.map.start_position.x + 0.5) * level.TILE_SIZE
+    local start_y = (self.map.start_position.y + 1) * level.TILE_SIZE
+    local arc = math.pi / (#self.players + 1)
+    print(start_x, start_y)
+    for i, p in pairs(self.players) do
+        local r = i * arc
+        local x = start_x + math.cos(r) * level.TILE_SIZE
+        local y = start_y + math.sin(r) * level.TILE_SIZE
+        p.position.x = x
+        p.position.y = y
+        p.direction = r
+    end
+    self:update_game(0)
+end
+
 -- TODO: HANDLE PLAYER INPUT
+-- TODO: HANDLE GAMEPAD REMOVAL
 
 function scene:keyPressed(key)
     if key == "r" then
@@ -96,19 +129,7 @@ function scene:update_level_generation()
         self.map = level.new(map_result)
         self.map_generator:release()
         self.map_generator = nil
-        self.visited = {}
-        self.visible = {}
-        for j, row in pairs(self.map.tiles) do
-            self.visited[j] = {}
-            self.visible[j] = {}
-            for i, t in pairs(row) do
-                self.visited[j][i] = false
-                self.visible[j][i] = false
-            end
-        end
-        self.enemies = self.map.enemies
-        self.traps = self.map.traps
-        self:update_game(0)
+        self:finalise_level()
     end
 end
 
