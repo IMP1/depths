@@ -57,6 +57,8 @@ local function reveal_map(self)
 end
 
 function scene:load()
+    -- TODO: Change this to the be from the tileset
+    -- TODO: This should therefor depend on the floor_type
     love.graphics.setBackgroundColor(0.25, 0.25, 0.3)
 end
 
