@@ -43,6 +43,13 @@ function scene:load(...)
     BGM:play()
 end
 
+function scene:keyPressed(key)
+    if key == "t" then
+        local next_scene = require('scn.level').new(self.party, 1)
+        scene_manager.setScene(next_scene)
+    end
+end
+
 function scene:gamepadPressed(gamepad, key)
     if not self.controllers[gamepad] then
         local player = {
