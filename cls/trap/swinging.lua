@@ -21,4 +21,7 @@ function swinging_trap:draw()
     -- TODO: Draw a pressure plate
 end
 
+function swinging_trap:trigger()
+end
+
 return swinging_trap
