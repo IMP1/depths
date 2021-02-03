@@ -23,8 +23,8 @@ local function raycast_visibility(self, scene, theta, visibility)
     local ox, oy = unpack(self.position.data)
     local tile_size = require('cls.level.level').TILE_SIZE
     for r = 0, self.view_distance * tile_size do
-        local i = math.floor((ox + cosine(theta) * r) / tile_size)
-        local j = math.floor((oy + sine(theta) * r) / tile_size)
+        local i = math.floor((ox + cosine(theta) * r) / tile_size) + 1
+        local j = math.floor((oy + sine(theta) * r) / tile_size) + 1
         if j >= 1 and j <= scene.map.height and i >= 1 and i <= scene.map.width then
             scene.visited[j][i] = true
             scene.visible[j][i] = true

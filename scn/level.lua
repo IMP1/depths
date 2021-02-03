@@ -92,11 +92,30 @@ function scene:finalise_level()
 end
 
 function scene:is_tile_opaque(i, j)
+    if self.map.tiles[j] == nil then return true end
+    if self.map.tiles[j][i] == nil then return true end
     local tile = self.map.tiles[j][i]
     return tile == level.tiles.NONE or 
            tile == level.tiles.WALL or
            tile == level.tiles.COLUMN or
            tile == level.tiles.FAKE_WALL
+end
+
+function scene:is_tile_passable(i, j)
+    if self.map.tiles[j] == nil then return false end
+    if self.map.tiles[j][i] == nil then return false end
+    local tile = self.map.tiles[j][i]
+    return tile == level.tiles.FLOOR or
+           tile == level.tiles.FLOOR_START or
+           tile == level.tiles.FLOOR_END or
+           tile == level.tiles.FLOOR_BOSS or
+           tile == level.tiles.FLOOR_HALL
+end
+
+function scene:is_pixel_passable(x, y)
+    local i = 1 + math.floor(x / self.map.TILE_SIZE)
+    local j = 1 + math.floor(y / self.map.TILE_SIZE)
+    return self:is_tile_passable(i, j)
 end
 
 -- TODO: HANDLE PLAYER INPUT
@@ -214,7 +233,7 @@ function scene:draw_map()
     for j, row in pairs(self.map.tiles) do
         for i, t in pairs(row) do
             if self.visited[j][i] then
-                local x, y = i * tile_size, j * tile_size
+                local x, y = (i-1) * tile_size, (j-1) * tile_size
                 local autotile = self.map.auto_tiles.floor[j][i]
                 love.graphics.setColor(1, 1, 1)
                 if (self.visited[j+1] or {})[i] then
@@ -246,7 +265,7 @@ function scene:draw_map()
     for j, row in pairs(self.map.tiles) do
         for i, t in pairs(row) do
             if self.visited[j][i] then
-                local x, y = i * tile_size, j * tile_size
+                local x, y = (i-1) * tile_size, (j-1) * tile_size
                 local autotile = self.map.auto_tiles.ceiling[j][i]
                 love.graphics.setColor(1, 1, 1)
                 if autotile then

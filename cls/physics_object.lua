@@ -17,7 +17,7 @@ end
 
 function physics_object:tile_position()
     local x, y = self.position / level.TILE_SIZE
-    return math.floor(x), math.floor(y)
+    return math.floor(x) + 1, math.floor(y) + 1
 end
 
 function physics_object:is_at_tile(x, y)
