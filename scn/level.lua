@@ -217,7 +217,7 @@ function scene:draw_map()
                 local x, y = i * tile_size, j * tile_size
                 local autotile = self.map.auto_tiles.floor[j][i]
                 love.graphics.setColor(1, 1, 1)
-                if (self.visible[j+1] or {})[i] then
+                if (self.visited[j+1] or {})[i] then
                     love.graphics.draw(self.map.tilemap, self.map.tilemap_quads[autotile], x, y)
                 end
                 if not self.visible[j][i] then
