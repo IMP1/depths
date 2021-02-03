@@ -7,7 +7,7 @@ arrow.__index = arrow
 local SPEED = 512
 local DAMAGE = 10
 local RADIUS = 4
-local MASS = 2
+local MASS = 0 -- flying, innit
 
 function arrow.new(x, y, dx, dy)
     local self = projectile.new(x, y, dx * SPEED, dy * SPEED, RADIUS, MASS, DAMAGE)
