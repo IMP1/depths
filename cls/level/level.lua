@@ -35,6 +35,8 @@ function level.new(options)
     local self = {}
     setmetatable(self, level)
 
+    self.width = options.width
+    self.height = options.height
     self.depth = options.depth
     self.floor_type = options.floor_type
     self.tiles = options.tiles

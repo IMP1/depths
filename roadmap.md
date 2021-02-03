@@ -1,8 +1,5 @@
 # Roadmap
 
-  * Draw player characters (just using shapes)
-  * Draw visible map sections
-  * Add player movement and update visibility
   * Test trap behaviour and damage player
   * Add player death and loss condition
   * Add PC classes, and set player stats (speed, HP, etc.)

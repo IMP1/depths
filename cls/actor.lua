@@ -25,16 +25,21 @@ local function raycast_visibility(self, scene, theta, visibility)
     for r = 0, self.view_distance * tile_size do
         local i = math.floor((ox + cosine(theta) * r) / tile_size)
         local j = math.floor((oy + sine(theta) * r) / tile_size)
-        -- if scene:is_tile_opaque(i, j)
-        -- TODO: do
+        if j >= 1 and j <= scene.map.height and i >= 1 and i <= scene.map.width then
+            scene.visited[j][i] = true
+            scene.visible[j][i] = true
+            if scene:is_tile_opaque(i, j) then
+                -- TODO: Check for ceilings?
+                return
+            end
+        end
     end
 end
 
-function actor:update_visibility()
-    -- TODO: Do this
-    local theta_size = 360 / (self.view_distance * 8)
+function actor:update_visibility(scene)
+    local theta_size = 360 / 360--(self.view_distance * 8)
     for theta = 0, 360, theta_size do
-        raycast_visibility(self, theta, self.visibility)
+        raycast_visibility(self, scene, theta, self.visibility)
     end
 end
 

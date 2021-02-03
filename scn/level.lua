@@ -39,7 +39,7 @@ function scene.new(party, depth)
     self.players = {}
     self.player_gamepads = {}
     for _, p in pairs(party) do
-        local char = player.new(0, 0, 0, p.class_id, p.skin_id)
+        local char = player.new(0, 0, 0, p.class_id, p.skin_id, p.gamepad)
         self.player_gamepads[p.gamepad] = char
         table.insert(self.players, char)
     end
@@ -89,6 +89,14 @@ function scene:finalise_level()
     self:update_game(0)
 end
 
+function scene:is_tile_opaque(i, j)
+    local tile = self.map.tiles[j][i]
+    return tile == level.tiles.NONE or 
+           tile == level.tiles.WALL or
+           tile == level.tiles.COLUMN or
+           tile == level.tiles.FAKE_WALL
+end
+
 -- TODO: HANDLE PLAYER INPUT
 -- TODO: HANDLE GAMEPAD REMOVAL
 
@@ -136,8 +144,8 @@ end
 function scene:update_game(dt)
     self:update_animations(dt)
     self:update_players(dt)
+    self:update_camera(dt)
     -- self:update_enemies(dt)
-    -- self:update_camera(dt)
     -- self:update_traps(dt)
     -- self:update_projectiles(dt)
     -- self:update_item_drops(dt)
@@ -163,9 +171,21 @@ function scene:update_players(dt)
         end
     end
     for _, p in pairs(self.players) do
-        -- p:update(dt)
-        -- p:update_visibility()
+        p:update(dt, self)
+        p:update_visibility(self)
     end
+end
+
+function scene:update_camera(dt)
+    if #self.players == 0 then return end
+    local furthest_x, furthest_y = 0, 0
+    local midpoint = self.players[1].position
+    for i = 2, #self.players do
+        midpoint = midpoint + self.players[i].position
+    end
+    midpoint = midpoint / #self.players
+    self.camera:centreOn(midpoint.x, midpoint.y)
+    -- TODO: get sensible zoom (with min of 1) that includes all players
 end
 
 function scene:draw()
@@ -184,6 +204,7 @@ function scene:draw_game()
     screenshake.unset()
     self.camera:unset()
     self:draw_minimap()
+    self:draw_hud()
 end
 
 function scene:draw_map()
@@ -195,9 +216,8 @@ function scene:draw_map()
                 local autotile = self.map.auto_tiles.floor[j][i]
                 love.graphics.setColor(1, 1, 1)
                 love.graphics.draw(self.map.tilemap, self.map.tilemap_quads[autotile], x, y)
-                -- self:draw_tile(x, y, self.map.auto_tiles.floor[j][i])
                 if not self.visible[j][i] then
-                    love.graphics.setColor(0, 0, 0, 0.25)
+                    love.graphics.setColor(0, 0, 0, 0.4)
                     love.graphics.rectangle("fill", x, y, tile_size, tile_size)
                 end
             end
@@ -236,13 +256,11 @@ function scene:draw_map()
     end
 end
 
-function scene:draw_tile(x, y, autotile)
-    print(autotile)
-    
-end
-
 function scene:draw_minimap()
 
+end
+
+function scene:draw_hud()
 end
 
 function scene:close()

@@ -1,19 +1,50 @@
+local vec2  = require 'lib.vec2'
 local actor = require 'cls.actor'
 
 local player = {}
 setmetatable(player, actor)
 player.__index = player
 
-function player.new(x, y, direction, class, skin)
+local JOYSTICK_DEADZONE = 0.1
+
+function player.new(x, y, direction, class, skin, gamepad)
     local name = ""
-    local radius = 8
+    local radius = 6
     local mass = 80
     local health = 100
     -- TODO: Get above values from class
     local self = actor.new(name, x, y, direction, radius, mass, health)
     setmetatable(self, player)
 
+    self.gamepad = gamepad
+    -- TODO: Get below values from class
+    self.speed = 100
+
     return self
+end
+
+function player:update(dt, scene)
+    local move_x = self.gamepad:getGamepadAxis("leftx")
+    local move_y = self.gamepad:getGamepadAxis("lefty")
+    if math.abs(move_x) < JOYSTICK_DEADZONE then
+        move_x = 0
+    end
+    if math.abs(move_y) < JOYSTICK_DEADZONE then
+        move_y = 0
+    end
+    local velocity = vec2(move_x, move_y) * dt * self.speed
+    -- TODO: Check if motion goes through anything impassable
+    self.position = self.position + velocity
+
+    local look_x = self.gamepad:getGamepadAxis("rightx")
+    local look_y = self.gamepad:getGamepadAxis("righty")
+    if math.abs(look_x) < JOYSTICK_DEADZONE then
+        look_x = 0
+    end
+    if math.abs(look_y) < JOYSTICK_DEADZONE then
+        look_y = 0
+    end
+    self.direction = math.atan2(look_y, look_x)
 end
 
 function player:draw()
