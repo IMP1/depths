@@ -10,6 +10,7 @@ function projectile.new(x, y, vx, vy, radius, mass, damage)
     setmetatable(self, projectile)
 
     self.velocity = vec2(vx, vy)
+    self.speed = self.velocity:magnitude()
     self.finished = false
     self.max_damage = damage
 
@@ -17,8 +18,8 @@ function projectile.new(x, y, vx, vy, radius, mass, damage)
 end
 
 function projectile:hit(obj)
-    if obj then
-        obj:damage(max_damage)
+    if obj and obj.damage then
+        obj:damage(self.max_damage)
     end
     self:destroy()
 end
@@ -28,15 +29,17 @@ function projectile:destroy()
 end
 
 function projectile:can_move_through(old_position, new_position, scene)
-    -- TODO: Use scene to check for collisions
+    return scene:is_pixel_passable(new_position.x, new_position.y)
+    -- TODO: Check along the way? For large values of dt
 end
 
 function projectile:update(dt, scene)
     local new_pos = self.position + self.velocity * dt
-    if self:can_move_through(self.position, new_pos) then
+    if self:can_move_through(self.position, new_pos, scene) then
         self.position = new_pos
     else
-        local collider = scene:get_object_at((new_pos + self.position) / 2, radius)
+        local x, y = unpack(((new_pos + self.position) / 2).data)
+        local collider = scene:get_object_at(x, y, self.radius * self.speed * dt * 2, self)
         self:hit(collider)
     end
 end
