@@ -33,8 +33,12 @@ function player:update(dt, scene)
         move_y = 0
     end
     local velocity = vec2(move_x, move_y) * dt * self.speed
-    -- TODO: Check if motion goes through anything impassable
-    self.position = self.position + velocity
+    local new_position = self.position + velocity
+    local test_position = new_position + velocity:normalise() * self.radius
+    if scene:is_pixel_passable(test_position.x, test_position.y) then
+        -- TODO: Check if motion goes through anything impassable (for high values of dt)
+        self.position = self.position + velocity
+    end
 
     local look_x = self.gamepad:getGamepadAxis("rightx")
     local look_y = self.gamepad:getGamepadAxis("righty")
