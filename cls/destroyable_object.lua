@@ -17,7 +17,7 @@ function destroyable_object.new(x, y, radius, mass, health)
     setmetatable(self, destroyable_object)
 
     self.max_health = health
-    self.current_health = max_health
+    self.current_health = self.max_health
     self.destroyed = false
 
     return self
