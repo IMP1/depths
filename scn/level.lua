@@ -117,13 +117,24 @@ function scene:is_pixel_passable(x, y)
     return self:is_tile_passable(i, j)
 end
 
+function scene:get_object_at(x, y, radius, omitted)
+    for obj in self:objects_with_mass() do
+        if obj ~= omitted then
+            local dx = obj.position.x - x
+            local dy = obj.position.y - y
+            if dx * dx + dy * dy <= radius * radius then
+                return obj
+            end
+        end
+    end
+end
+
 function scene:objects_with_mass()
-    -- TODO: THIS SHIT AIN'T WORKING
     local lists = {
-        self.projectiles,
-        self.item_drops,
         self.players,
         self.enemies,
+        self.projectiles,
+        self.item_drops,
     }
     local n = 1
     for _, list in ipairs(lists) do
@@ -206,19 +217,19 @@ function scene:update_game(dt)
         trap:update(dt, self)
     end
     for _, projectile in pairs(self.projectiles) do
-        projectile:update(dt)
+        projectile:update(dt, self)
     end
     for _, animation in pairs(self.animations) do
         animation:update(dt)
     end
     for _, item_drop in pairs(self.item_drops) do
-        item_drop:update(dt)
+        item_drop:update(dt, self)
     end
     for _, popup in pairs(self.popups) do
         popup:update(dt)
     end
 
-    -- self:remove_dead()
+    self:remove_dead()
     screenshake.update(dt)
 end
 
@@ -254,6 +265,33 @@ function scene:update_camera(dt)
     midpoint = midpoint / #self.players
     self.camera:centreOn(midpoint.x, midpoint.y)
     -- TODO: get sensible zoom (with min of 1) that includes all players
+end
+
+function scene:remove_dead()
+    for i = #self.enemies, 1, -1 do
+        local enemy = self.enemies[i]
+        -- TODO: remove dead
+    end
+    for i = #self.projectiles, 1, -1 do
+        local projectile = self.projectiles[i]
+        if projectile.finished then
+            table.remove(self.projectiles, i)
+        end
+    end
+    for i = #self.animations, 1, -1 do
+        local animation = self.animations[i]
+        if animation.finished then
+            table.remove(self.animations, i)
+        end
+    end
+    for i = #self.item_drops, 1, -1 do
+        local item_drop = self.item_drops[i]
+        
+    end
+    for i = #self.popups, 1, -1 do
+        local popup = self.popups[i]
+        
+    end
 end
 
 function scene:draw()
