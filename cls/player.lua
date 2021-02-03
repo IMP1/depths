@@ -37,6 +37,7 @@ function player:update(dt, scene)
     local test_position = new_position + velocity:normalise() * self.radius
     if scene:is_pixel_passable(test_position.x, test_position.y) then
         -- TODO: Check if motion goes through anything impassable (for high values of dt)
+        -- TODO: Check for corners?
         self.position = self.position + velocity
     end
 
