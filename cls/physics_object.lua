@@ -16,7 +16,7 @@ function physics_object.new(x, y, radius, mass)
 end
 
 function physics_object:tile_position()
-    local x, y = self.position / level.TILE_SIZE
+    local x, y = unpack((self.position / level.TILE_SIZE).data)
     return math.floor(x) + 1, math.floor(y) + 1
 end
 
