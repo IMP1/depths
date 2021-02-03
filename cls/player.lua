@@ -38,13 +38,9 @@ function player:update(dt, scene)
 
     local look_x = self.gamepad:getGamepadAxis("rightx")
     local look_y = self.gamepad:getGamepadAxis("righty")
-    if math.abs(look_x) < JOYSTICK_DEADZONE then
-        look_x = 0
+    if math.abs(look_x) > JOYSTICK_DEADZONE or math.abs(look_y) > JOYSTICK_DEADZONE then
+        self.direction = math.atan2(look_y, look_x)
     end
-    if math.abs(look_y) < JOYSTICK_DEADZONE then
-        look_y = 0
-    end
-    self.direction = math.atan2(look_y, look_x)
 end
 
 function player:draw()
