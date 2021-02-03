@@ -11,7 +11,7 @@ local MASS = 0 -- flying, innit
 
 function arrow.new(x, y, dx, dy)
     local self = projectile.new(x, y, dx * SPEED, dy * SPEED, RADIUS, MASS, DAMAGE)
-    setmetatale(self, arrow)
+    setmetatable(self, arrow)
 
     return self
 end
@@ -21,7 +21,15 @@ function arrow:destroy()
 end
 
 function arrow:update(dt, scene)
-    self.animation:update(dt)
+    projectile.update(self, dt, scene)
+    -- self.animation:update(dt)
+end
+
+function arrow:draw()
+    love.graphics.setColor(1, 1, 1)
+    local length = 4
+    local x, y = unpack(self.position.data)
+    love.graphics.circle("fill", x, y, 4)
 end
 
 return arrow
