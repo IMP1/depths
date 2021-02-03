@@ -74,7 +74,7 @@ function gen.is_wall(level, x, y, include_fakes)
     if include_fakes and t == TILE.FAKE_WALL then
         return true
     end
-    return t == TILE.WALL
+    return t == TILE.WALL or t == TILE.COLUMN
 end
 
 function gen.is_exit(level, x, y)
@@ -480,7 +480,7 @@ function gen.create_columns(level)
             local obscuring = gen.is_trap_at(level, i, j-1) or
                               gen.is_exit(level, i, j-2)
             if enough_space and not occupied and not obscuring and math.random() < probability then
-                gen.set_tile(level, i, j, TILE.COLUMN_SIDE)
+                gen.set_tile(level, i, j, TILE.COLUMN)
             end
         end
     end

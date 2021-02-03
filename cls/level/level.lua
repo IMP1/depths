@@ -14,9 +14,8 @@ local tile = {
     FLOOR_BOSS  = 4,
     FLOOR_HALL  = 5,
     WALL        = 6,
-    COLUMN_TOP  = 7,
-    COLUMN_SIDE = 8,
-    FAKE_WALL   = 9,
+    COLUMN      = 7,
+    FAKE_WALL   = 8,
 }
 
 level.TILE_SIZE = 16
