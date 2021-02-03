@@ -217,7 +217,9 @@ function scene:draw_map()
                 local x, y = i * tile_size, j * tile_size
                 local autotile = self.map.auto_tiles.floor[j][i]
                 love.graphics.setColor(1, 1, 1)
-                love.graphics.draw(self.map.tilemap, self.map.tilemap_quads[autotile], x, y)
+                if (self.visible[j+1] or {})[i] then
+                    love.graphics.draw(self.map.tilemap, self.map.tilemap_quads[autotile], x, y)
+                end
                 if not self.visible[j][i] then
                     love.graphics.setColor(0, 0, 0, 0.4)
                     love.graphics.rectangle("fill", x, y, tile_size, tile_size)

@@ -29,7 +29,6 @@ local function raycast_visibility(self, scene, theta, visibility)
             scene.visited[j][i] = true
             scene.visible[j][i] = true
             if scene:is_tile_opaque(i, j) then
-                -- TODO: Check for ceilings?
                 return
             end
         end
