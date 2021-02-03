@@ -79,7 +79,6 @@ function scene:finalise_level()
     local start_x = (self.map.start_position.x + 0.5) * level.TILE_SIZE
     local start_y = (self.map.start_position.y + 1) * level.TILE_SIZE
     local arc = math.pi / (#self.players + 1)
-    print(start_x, start_y)
     for i, p in pairs(self.players) do
         local r = i * arc
         local x = start_x + math.cos(r) * level.TILE_SIZE
@@ -118,7 +117,40 @@ function scene:is_pixel_passable(x, y)
     return self:is_tile_passable(i, j)
 end
 
--- TODO: HANDLE PLAYER INPUT
+function scene:objects_with_mass()
+    -- TODO: THIS SHIT AIN'T WORKING
+    local lists = {
+        self.projectiles,
+        self.item_drops,
+        self.players,
+        self.enemies,
+    }
+    local n = 1
+    for _, list in ipairs(lists) do
+        if #list == 0 then 
+            n = n + 1 
+        else
+            break
+        end
+    end
+    local i = 1
+    return function()
+        if lists[n] then
+            if lists[n][i] then
+                local obj = lists[n][i]
+                i = i + 1
+                if i > #lists[n] then
+                    n = n + 1
+                    i = 1
+                end
+                return obj
+            end
+        end
+    end
+end
+
+-- TODO: Add collision checks for rect+rect, and rect+circle
+
 -- TODO: HANDLE GAMEPAD REMOVAL
 
 function scene:keyPressed(key)
@@ -166,11 +198,26 @@ function scene:update_game(dt)
     self:update_animations(dt)
     self:update_players(dt)
     self:update_camera(dt)
-    -- self:update_enemies(dt)
-    -- self:update_traps(dt)
-    -- self:update_projectiles(dt)
-    -- self:update_item_drops(dt)
-    -- self:update_popups(dt)
+
+    for _, enemy in pairs(self.enemies) do
+        enemy:update(dt, self)
+    end
+    for _, trap in pairs(self.traps) do
+        trap:update(dt, self)
+    end
+    for _, projectile in pairs(self.projectiles) do
+        projectile:update(dt)
+    end
+    for _, animation in pairs(self.animations) do
+        animation:update(dt)
+    end
+    for _, item_drop in pairs(self.item_drops) do
+        item_drop:update(dt)
+    end
+    for _, popup in pairs(self.popups) do
+        popup:update(dt)
+    end
+
     -- self:remove_dead()
     screenshake.update(dt)
 end
@@ -248,13 +295,16 @@ function scene:draw_map()
     end
     love.graphics.setColor(1, 1, 1)
     for _, trap in pairs(self.traps) do
-        trap:draw()
+        trap:draw(self)
+    end
+    for _, item_drop in pairs(self.item_drops) do
+        item_drop:draw(self)
     end
     for _, enemy in pairs(self.enemies) do
-        enemy:draw()
+        enemy:draw(self)
     end
     for _, player in pairs(self.players) do
-        player:draw()
+        player:draw(self)
     end
     for _, projectile in pairs(self.projectiles) do
         projectile:draw()
@@ -262,6 +312,7 @@ function scene:draw_map()
     for _, animation in pairs(self.animations) do
         animation:draw()
     end
+    -- TODO: Have a shader or something that renders these transparent if they're within X distance from a player (or enemy?)
     for j, row in pairs(self.map.tiles) do
         for i, t in pairs(row) do
             if self.visited[j][i] then
