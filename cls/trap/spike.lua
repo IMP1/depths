@@ -30,7 +30,7 @@ function spike_trap.new(x, y)
 end
 
 function spike_trap:update(dt, game)
-    trap.update(dt, game)
+    trap.update(self, dt, game)
     -- if self.animation:is_playing() then
         -- self.animation:update(dt)
         -- if self.animation.current_frame == DAMAGE_FRAME and not self.hit then
