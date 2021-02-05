@@ -356,13 +356,14 @@ function scene:draw_map()
             if self.visited[j][i] then
                 local x, y = (i-1) * tile_size, (j-1) * tile_size
                 local autotile = self.map.auto_tiles.ceiling[j][i]
-                love.graphics.setColor(1, 1, 1)
+                love.graphics.setColor(1, 1, 1, 0.5)
                 if autotile then
                     love.graphics.draw(self.map.tilemap, self.map.tilemap_quads[autotile], x, y - tile_size)
                 end
             end
         end
     end
+    love.graphics.setColor(1, 1, 1)
     for _, popup in pairs(self.popups) do
         popup:draw()
     end
