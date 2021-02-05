@@ -50,14 +50,24 @@ function arrow_trap:update(dt, ...)
 end
 
 function arrow_trap:draw(scene)
-    -- TODO: Draw a pressure plate if visited
-    local i, j = unpack(self.trigger_position.data)
-    if scene.visited[j][i] then
-        local x, y = (i-1) * level.TILE_SIZE, (j-1) * level.TILE_SIZE
-        love.graphics.setColor(1, 0, 0, 0.8)
-        love.graphics.rectangle("fill", x + 4, y + 4, level.TILE_SIZE - 8, level.TILE_SIZE - 8)
+    do
+        -- Draw a pressure plate if visited
+        local i, j = unpack(self.trigger_position.data)
+        if scene.visited[j][i] then
+            local x, y = (i-1) * level.TILE_SIZE, (j-1) * level.TILE_SIZE
+            love.graphics.setColor(1, 0, 0, 0.8)
+            love.graphics.rectangle("fill", x + 4, y + 4, level.TILE_SIZE - 8, level.TILE_SIZE - 8)
+        end
     end
-    -- TODO: Draw a arrow shooty hole if visited
+    do
+        -- Draw a arrow shooty hole if visited
+        local i, j = unpack(self.arrow_position.data)
+        if scene.visited[j][i] then
+            local x, y = (i-0.5) * level.TILE_SIZE, (j-0.5) * level.TILE_SIZE
+            love.graphics.setColor(1, 0, 0, 0.8)
+            love.graphics.circle("fill", x, y, level.TILE_SIZE / 4)
+        end
+    end
 end
 
 return arrow_trap
