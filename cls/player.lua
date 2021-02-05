@@ -17,10 +17,27 @@ function player.new(x, y, direction, class, skin, gamepad)
     setmetatable(self, player)
 
     self.gamepad = gamepad
+    self.invulnerability_timer = 0
     -- TODO: Get below values from class
     self.speed = 100
+    self.dead = false
 
     return self
+end
+
+function player:damage(...)
+    if self.dead then return end 
+    if not self.invulnerability_timer > 0 then
+        actor.damage(self, ...)
+        -- TODO: Flash white
+        -- TODO: Add invulnerability timer?
+    end
+end
+
+function player:destroy()
+    -- TODO: Change into ghost, set dead = true, destroyed = false
+    print("dead")
+    io.flush()
 end
 
 function player:update(dt, scene)
@@ -36,6 +53,7 @@ function player:update(dt, scene)
     local new_position = self.position + velocity
     local test_position = new_position + velocity:normalise() * self.radius
     if scene:is_pixel_passable(test_position.x, test_position.y) then
+        -- TODO: Check for polygon collision - use `lib/polygon_intersection.lua`
         -- TODO: Check if motion goes through anything impassable (for high values of dt)
         -- TODO: Check for corners?
         self.position = self.position + velocity
@@ -45,6 +63,9 @@ function player:update(dt, scene)
     local look_y = self.gamepad:getGamepadAxis("righty")
     if math.abs(look_x) > JOYSTICK_DEADZONE or math.abs(look_y) > JOYSTICK_DEADZONE then
         self.direction = math.atan2(look_y, look_x)
+    end
+    if self.invulnerability_timer > 0 then
+        self.invulnerability_timer = math.max(0, self.invulnerability_timer - dt)
     end
 end
 
