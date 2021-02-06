@@ -710,12 +710,10 @@ end
 
 function gen.create_arrow_traps(level)
     local probability = 0.05
-    local min_distance_from_exit = 2
+    local min_distance_from_exit = 3
     for j, row in pairs(level.tiles) do
         for i, t in pairs(row) do
-            local too_near_exit = math.abs(j - level.start_position.y) + math.abs(i - level.start_position.x) < min_distance_from_exit or 
-                                  math.abs(j - level.end_position.y) + math.abs(i - level.end_position.x) < min_distance_from_exit
-            if gen.is_floor(level, i, j) and math.random() < probability and not too_near_exit then
+            if gen.is_floor(level, i, j) and math.random() < probability then
                 gen.create_arrow_trap(level, i, j)
             end
         end
@@ -749,6 +747,15 @@ function gen.create_arrow_trap(level, trap_x, trap_y)
 
     local too_close = math.abs(arrow_x - trap_x) + math.abs(arrow_y - trap_y) < 3
     if too_close then
+        return
+    end
+
+    local min_distance_from_exit = 3
+    local too_near_exit = math.abs(trap_y - level.start_position.y) + math.abs(trap_x - level.start_position.x) < min_distance_from_exit or 
+                          math.abs(trap_y - level.start_position.y) + math.abs(trap_x - level.start_position.x) < min_distance_from_exit or
+                          math.abs(arrow_y - level.end_position.y)  + math.abs(arrow_x - level.end_position.x)  < min_distance_from_exit or
+                          math.abs(arrow_y - level.end_position.y)  + math.abs(arrow_x - level.end_position.x)  < min_distance_from_exit
+    if too_near_exit then
         return
     end
 
