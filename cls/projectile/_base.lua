@@ -42,7 +42,8 @@ function projectile:update(dt, scene)
         self.position = new_pos
     else
         local x, y = unpack(((new_pos + self.position) / 2).data)
-        local collider = scene:get_object_at(x, y, self.radius * self.speed * dt, self)
+        local damage_radius = self.radius
+        local collider = scene:get_object_at(x, y, damage_radius, self)
         self:hit(collider)
     end
 end

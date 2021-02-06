@@ -16,13 +16,16 @@ function arrow.new(x, y, dx, dy)
     return self
 end
 
-function arrow:draw()
+function arrow:draw(scene)
     if self.destroyed then return end
-    love.graphics.setColor(1, 1, 1)
-    local length = 4
-    local x, y = unpack(self.position.data)
-    local x2, y2 = unpack((self.position + self.velocity:normalise() * length).data)
-    love.graphics.line(x, y, x2, y2)
+    local length = self.radius * 2
+    local i, j = self:tile_position()
+    if scene.visible[j][i] then
+        local x, y = unpack(self.position.data)
+        local x2, y2 = unpack((self.position + self.velocity:normalise() * length).data)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.line(x, y, x2, y2)
+    end
 end
 
 return arrow
