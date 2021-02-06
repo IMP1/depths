@@ -111,10 +111,12 @@ function scene:is_tile_passable(i, j)
            tile == level.tiles.FLOOR_HALL
 end
 
-function scene:is_pixel_passable(x, y)
+function scene:is_pixel_passable(x, y, reference_obj)
     local i = 1 + math.floor(x / self.map.TILE_SIZE)
     local j = 1 + math.floor(y / self.map.TILE_SIZE)
-    return self:is_tile_passable(i, j)
+    if not self:is_tile_passable(i, j) then return false end
+    -- TODO: Go through solid objects (players, enemies) and return false if they occupy that space
+    return true
 end
 
 function scene:get_object_at(x, y, radius, omitted)
@@ -249,9 +251,16 @@ function scene:update_players(dt)
             self.visible[j][i] = false
         end
     end
+    local all_dead = true
     for _, p in pairs(self.players) do
         p:update(dt, self)
         p:update_visibility(self)
+        if not p.destroyed then
+            all_dead = false
+        end
+    end
+    if all_dead then
+        -- TODO: Game over screen
     end
 end
 
@@ -274,7 +283,7 @@ function scene:remove_dead()
     end
     for i = #self.projectiles, 1, -1 do
         local projectile = self.projectiles[i]
-        if projectile.finished then
+        if projectile.destroyed then
             table.remove(self.projectiles, i)
         end
     end
