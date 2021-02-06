@@ -16,20 +16,13 @@ function arrow.new(x, y, dx, dy)
     return self
 end
 
-function arrow:destroy()
-    projectile.destroy(self)
-end
-
-function arrow:update(dt, scene)
-    projectile.update(self, dt, scene)
-    -- self.animation:update(dt)
-end
-
 function arrow:draw()
+    if self.destroyed then return end
     love.graphics.setColor(1, 1, 1)
     local length = 4
     local x, y = unpack(self.position.data)
-    love.graphics.circle("fill", x, y, 4)
+    local x2, y2 = unpack((self.position + self.velocity:normalise() * length).data)
+    love.graphics.line(x, y, x2, y2)
 end
 
 return arrow
