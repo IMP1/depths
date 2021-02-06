@@ -27,7 +27,7 @@ end
 
 function physics_object:is_at_pixel(x, y, leeway)
     local difference = vec2(x, y) - self.position
-    return difference:magnitudeSquared() < leeway ^ 2
+    return difference:magnitudeSquared() < (leeway or self.radius) ^ 2
 end
 
 return physics_object

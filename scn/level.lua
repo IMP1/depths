@@ -115,6 +115,11 @@ function scene:is_pixel_passable(x, y, reference_obj)
     local i = 1 + math.floor(x / self.map.TILE_SIZE)
     local j = 1 + math.floor(y / self.map.TILE_SIZE)
     if not self:is_tile_passable(i, j) then return false end
+    for _, p in pairs(self.players) do
+        if p:is_at_pixel(x, y) then
+            return false
+        end
+    end
     -- TODO: Go through solid objects (players, enemies) and return false if they occupy that space
     return true
 end
@@ -124,7 +129,8 @@ function scene:get_object_at(x, y, radius, omitted)
         if obj ~= omitted then
             local dx = obj.position.x - x
             local dy = obj.position.y - y
-            if dx * dx + dy * dy <= radius * radius then
+            local dr = (radius + obj.radius)
+            if dx * dx + dy * dy <= dr * dr then
                 return obj
             end
         end
