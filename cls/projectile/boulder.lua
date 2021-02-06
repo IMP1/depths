@@ -6,7 +6,7 @@ setmetatable(boulder, projectile)
 boulder.__index = boulder
 
 local SPEED = 256
-local RADIUS = 16
+local RADIUS = 8
 local MASS = 600
 local DAMAGE = 9999
 local MIN_MASS_TO_DESTROY = 500
@@ -16,7 +16,7 @@ local HIT_SCREENSHAKE_DURATION = 0.2 -- seconds
 
 function boulder.new(x, y, dx, dy)
     local self = projectile.new(x, y, dx * SPEED, dy * SPEED, RADIUS, MASS, DAMAGE)
-    setmetatale(self, boulder)
+    setmetatable(self, boulder)
 
     -- TODO: Add and handle an animation
 
@@ -27,14 +27,14 @@ end
 
 function boulder:hit(obj)
     if obj then
-        obj:damage(max_damage)
+        obj:damage(DAMAGE)
         if obj.mass > MIN_MASS_TO_DESTROY then
             self:destroy()
         end
     else
         self:destroy()
     end
-    screenshake.add_screenshake(HIT_SCREENSHAKE_STRENGTH, HIT_SCREENSHAKE_STRENGTH, HIT_SCREENSHAKE_DURATION)
+    -- screenshake.add_screenshake(HIT_SCREENSHAKE_STRENGTH, HIT_SCREENSHAKE_STRENGTH, HIT_SCREENSHAKE_DURATION)
 end
 
 function boulder:destroy()
@@ -43,7 +43,18 @@ function boulder:destroy()
 end
 
 function boulder:update(dt, scene)
-    self.animation:update(dt)
+    projectile.update(self, dt, scene)
+    -- self.animation:update(dt)
+end
+
+function boulder:draw(scene)
+    -- if self.destroyed then return end
+    local i, j = self:tile_position()
+    -- if scene.visible[j][i] then
+        local x, y = unpack(self.position.data)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.circle("fill", x, y, self.radius)
+    -- end
 end
 
 return boulder

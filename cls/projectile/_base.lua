@@ -29,21 +29,28 @@ function projectile:destroy()
 end
 
 function projectile:can_move_through(old_position, new_position, scene)
+    local passable, obstruction = scene:is_pixel_passable(new_position.x, new_position.y, self)
+    if not passable then
+        return false, obstruction
+    end
     local midpoint = (old_position + new_position) / 2
-    return scene:is_pixel_passable(new_position.x, new_position.y, self) and
-           scene:is_pixel_passable(midpoint.x, midpoint.y, self)
+    passable, obstruction = scene:is_pixel_passable(midpoint.x, midpoint.y, self)
+    if not passable then
+        return false, obstruction
+    end
+    return true
     -- TODO: Check along the way? For large values of dt
 end
 
 function projectile:update(dt, scene)
     if self.destroyed then return end
     local new_pos = self.position + self.velocity * dt
-    if self:can_move_through(self.position, new_pos, scene) then
+    local passable, obstruction = self:can_move_through(self.position, new_pos, scene)
+    if passable then
         self.position = new_pos
     else
         local x, y = unpack(((new_pos + self.position) / 2).data)
-        local damage_radius = self.radius
-        local collider = scene:get_object_at(x, y, damage_radius, self)
+        local collider = scene:get_object_at(x, y, self.radius, self)
         self:hit(collider)
     end
 end
