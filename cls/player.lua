@@ -51,14 +51,16 @@ function player:update(dt, scene)
     if math.abs(move_y) < JOYSTICK_DEADZONE then
         move_y = 0
     end
-    local velocity = vec2(move_x, move_y) * dt * self.speed
-    local new_position = self.position + velocity
-    local test_position = new_position + velocity:normalise() * self.radius
-    if scene:is_pixel_passable(test_position.x, test_position.y, self) or self.destroyed then
-        -- TODO: Check for polygon collision - use `lib/polygon_intersection.lua`
-        -- TODO: Check if motion goes through anything impassable (for high values of dt)
-        -- TODO: Check for corners?
-        self.position = self.position + velocity
+    if move_x ~= 0 or move_y ~= 0 then
+        local velocity = vec2(move_x, move_y) * dt * self.speed
+        local new_position = self.position + velocity
+        local test_position = new_position + velocity:normalise() * self.radius
+        if scene:is_pixel_passable(test_position.x, test_position.y, self) or self.destroyed then
+            -- TODO: Check for polygon collision - use `lib/polygon_intersection.lua`
+            -- TODO: Check if motion goes through anything impassable (for high values of dt)
+            -- TODO: Check for corners?
+            self.position = self.position + velocity
+        end
     end
 
     local look_x = self.gamepad:getGamepadAxis("rightx")
@@ -81,7 +83,6 @@ function player:draw()
     local y2 = y + self.radius * math.sin(self.direction)
     love.graphics.circle("line", x, y, self.radius)
     love.graphics.line(x, y, x2, y2)
-    -- TODO: Draw a shape that indicates position and direction
 end
 
 return player
