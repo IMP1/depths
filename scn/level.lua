@@ -114,20 +114,23 @@ end
 function scene:is_pixel_passable(x, y, reference_obj)
     local i = 1 + math.floor(x / self.map.TILE_SIZE)
     local j = 1 + math.floor(y / self.map.TILE_SIZE)
-    if not self:is_tile_passable(i, j) then return false end
+    if not self:is_tile_passable(i, j) then 
+        return false
+    end
+    -- TODO: Check fake walls
     for _, p in pairs(self.players) do
-        if p:is_at_pixel(x, y) then
-            return false
+        if p:is_at_pixel(x, y) and p ~= reference_obj then
+            return false, p
         end
     end
     for _, e in pairs(self.enemies) do
-        if e:is_at_pixel(x, y) then
-            return false
+        if e:is_at_pixel(x, y) and e ~= reference_obj then
+            return false, e
         end
     end
     for _, p in pairs(self.projectiles) do
-        if p:is_at_pixel(x, y) then
-            return false
+        if p:is_at_pixel(x, y) and p ~= reference_obj then
+            return false, p
         end
     end
     return true
