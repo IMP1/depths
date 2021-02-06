@@ -166,6 +166,15 @@ end
 
 -- TODO: HANDLE GAMEPAD REMOVAL
 
+function scene:next_level()
+end
+
+function scene:game_over()
+    print("Game Over")
+    local next_scene = require('scn.game_over')
+    scene_manager.setScene(next_scene.new(self.players, self.map))
+end
+
 function scene:keyPressed(key)
     if key == "r" then
         reveal_map(self)
@@ -260,7 +269,7 @@ function scene:update_players(dt)
         end
     end
     if all_dead then
-        -- TODO: Game over screen
+        self:game_over()
     end
 end
 
@@ -354,10 +363,10 @@ function scene:draw_map()
         player:draw(self)
     end
     for _, projectile in pairs(self.projectiles) do
-        projectile:draw()
+        projectile:draw(self)
     end
     for _, animation in pairs(self.animations) do
-        animation:draw()
+        animation:draw(self)
     end
     -- TODO: Have a shader or something that renders these transparent if they're within X distance from a player (or enemy?)
     for j, row in pairs(self.map.tiles) do
