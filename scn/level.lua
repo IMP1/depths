@@ -120,7 +120,16 @@ function scene:is_pixel_passable(x, y, reference_obj)
             return false
         end
     end
-    -- TODO: Go through solid objects (players, enemies) and return false if they occupy that space
+    for _, e in pairs(self.enemies) do
+        if e:is_at_pixel(x, y) then
+            return false
+        end
+    end
+    for _, p in pairs(self.projectiles) do
+        if p:is_at_pixel(x, y) then
+            return false
+        end
+    end
     return true
 end
 
@@ -184,6 +193,11 @@ end
 function scene:keyPressed(key)
     if key == "r" then
         reveal_map(self)
+    end
+    if key == "h" then
+        for _, player in pairs(self.players) do
+            player:heal(100)
+        end
     end
 end
 
