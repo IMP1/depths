@@ -29,7 +29,7 @@ function arrow_trap:trigger(scene)
     end 
     self.triggered = true
     local arrow_direction = (self.trigger_position - self.arrow_position):normalise()
-    local x, y = unpack(((self.arrow_position - vec2(0.5, 0.5)) * level.TILE_SIZE).data)
+    local x, y = unpack(((self.arrow_position - vec2(0.5, 0.5) + arrow_direction * 0.5) * level.TILE_SIZE).data)
     local a = arrow.new(x, y, arrow_direction.x, arrow_direction.y)
     table.insert(scene.projectiles, a)
     self.fire_delay = FIRE_DELAY
