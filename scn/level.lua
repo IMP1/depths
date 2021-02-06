@@ -29,6 +29,7 @@ function scene.new(party, depth)
     self.projectiles = {}
     self.popups = {}
     self.item_drops = {}
+    self.fake_walls = {}
     self.visited = {}
     self.visible = {}
     self.exiting_map = false
@@ -75,6 +76,7 @@ function scene:finalise_level()
     end
     self.enemies = self.map.enemies
     self.traps = self.map.traps
+    self.fake_walls = self.map.fake_walls
     -- Setup Players
     local start_x = (self.map.start_position.x + 0.5) * level.TILE_SIZE
     local start_y = (self.map.start_position.y + 1) * level.TILE_SIZE
@@ -114,10 +116,10 @@ end
 function scene:is_pixel_passable(x, y, reference_obj)
     local i = 1 + math.floor(x / self.map.TILE_SIZE)
     local j = 1 + math.floor(y / self.map.TILE_SIZE)
+    -- TODO: Check fake walls
     if not self:is_tile_passable(i, j) then 
         return false
     end
-    -- TODO: Check fake walls
     for _, p in pairs(self.players) do
         if p:is_at_pixel(x, y) and p ~= reference_obj then
             return false, p
