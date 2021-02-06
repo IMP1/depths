@@ -20,24 +20,26 @@ function player.new(x, y, direction, class, skin, gamepad)
     self.invulnerability_timer = 0
     -- TODO: Get below values from class
     self.speed = 100
-    self.dead = false
 
     return self
 end
 
 function player:damage(...)
-    if self.dead then return end 
-    if not self.invulnerability_timer > 0 then
+    if self.invulnerability_timer == 0 then
         actor.damage(self, ...)
-        -- TODO: Flash white
+        -- TODO: Flash white? Show (blood) animation
         -- TODO: Add invulnerability timer?
+        local invulnerability_timer = 0
+        self.invulnerability_timer = invulnerability_timer
     end
 end
 
-function player:destroy()
-    -- TODO: Change into ghost, set dead = true, destroyed = false
-    print("dead")
-    io.flush()
+function player:destroy(...)
+    actor.destroy(self, ...)
+    -- TODO: Change into ghost
+    -- TODO: Either create new object and change level player pointer to that?
+    --       Or change graphics and stats (but keep track of normal stats/gfx for after revive)
+    self.mass = 0
 end
 
 function player:update(dt, scene)
@@ -52,7 +54,7 @@ function player:update(dt, scene)
     local velocity = vec2(move_x, move_y) * dt * self.speed
     local new_position = self.position + velocity
     local test_position = new_position + velocity:normalise() * self.radius
-    if scene:is_pixel_passable(test_position.x, test_position.y) then
+    if scene:is_pixel_passable(test_position.x, test_position.y, self) or self.destroyed then
         -- TODO: Check for polygon collision - use `lib/polygon_intersection.lua`
         -- TODO: Check if motion goes through anything impassable (for high values of dt)
         -- TODO: Check for corners?
@@ -71,6 +73,9 @@ end
 
 function player:draw()
     love.graphics.setColor(1, 1, 1)
+    if self.destroyed then
+        love.graphics.setColor(1, 1, 1, 0.2)
+    end
     local x, y = unpack(self.position.data)
     local x2 = x + self.radius * math.cos(self.direction)
     local y2 = y + self.radius * math.sin(self.direction)
