@@ -1,5 +1,6 @@
 local scene_manager = require 'lib.conductor'
 local camera        = require 'lib.camera'
+local safeword      = require 'lib.safeword'
 local level         = require 'cls.level.level'
 local base_scene    = require 'scn._base'
 
@@ -29,7 +30,12 @@ function scene.new()
     local self = base_scene.new("Title")
     setmetatable(self, scene)
 
-    self.available_character_classes = {"Knight", "Ranger", "Wizard"}
+    local available_character_class_indicies = safeword.get("classes", {1, 2, 3})
+    local all_classes = love.filesystem.load("dat/classes.lua")()
+    self.available_character_classes = {}
+    for _, i in ipairs(available_character_class_indicies) do
+        table.insert(self.available_character_classes, all_classes[i])
+    end
     self.controllers = {}
     self.party = {}
     self.all_ready = false
@@ -41,6 +47,13 @@ end
 function scene:load(...)
     love.graphics.setBackgroundColor(0.1, 0.1, 0.1)
     BGM:play()
+end
+
+function scene:finalise()
+    for _, player in pairs(self.party) do
+        player.class = self.available_character_classes[player.class_id]
+        player.class_id = nil
+    end
 end
 
 function scene:keyPressed(key)
@@ -177,7 +190,8 @@ function scene:draw()
         love.graphics.setColor(0.9, 0.9, 0.9)
         love.graphics.rectangle("line", x, y, w, h)
         -- TODO: Draw left and right arrows
-        love.graphics.printf(self.available_character_classes[player.class_id], x, y + 8, w, "center")
+        local class_name = self.available_character_classes[player.class_id].name
+        love.graphics.printf(class_name, x, y + 8, w, "center")
         love.graphics.setColor(SKINS[player.skin_id])
         love.graphics.rectangle("fill", x + 4, y + 40, w - 8, 3)
         if player.ready then
