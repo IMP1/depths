@@ -1,5 +1,6 @@
 local scene_manager = require 'lib.conductor'
 local settings      = require 'lib.settings'
+local safeword      = require 'lib.safeword'
 local localisation  = require 'lib.sweet_nothings'
 
 localisation.setLanguagesFolder("vocab")
@@ -28,6 +29,7 @@ T = localisation.internationalise
 function love.load()
     settings.load()
     settings.setDefaults(DEFAULT_SETTINGS)
+    safeword.load()
 
     love.audio.setVolume(settings.get("volume_master"))
     localisation.setLanguage(settings.get("language"))
@@ -60,4 +62,8 @@ end
 function love.draw()
     love.graphics.setColor(1, 1, 1)
     scene_manager.draw()
+end
+
+function love.quit()
+    safeword.save()
 end
