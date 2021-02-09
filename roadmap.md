@@ -1,9 +1,11 @@
 # Roadmap
 
   * Test trap behaviour and damage player
+  * Make placeholder graphics for swinging trap
   * Add PC classes, and set player stats (speed, HP, etc.)
   * Add win condition (leaving level)
   * Add fake wall objects (that can be destroyed)
+  * Test projectile interactions with with world (eg. Do boulders trigger other boulders? Do arrows damage fake walls?)
   * Add player dealing damage (eg. to fake walls)
   * Add some better (but maybe still placeholder) graphics for tiles and characters
   * Add enemy generation to level generation
