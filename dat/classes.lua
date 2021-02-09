@@ -3,6 +3,7 @@ return {
         name = "Knight",
         health = 140,
         speed = 80,
+        size = 7,
         attack = 4, -- TODO: Not sure what this number should actually be
         crit = 0.01,
         intelligence = 1,  -- TODO: Not sure what this number should actually be
@@ -20,6 +21,7 @@ return {
         name = "Ranger",
         health = 100,
         speed = 120,
+        size = 5,
         attack = 2, -- TODO: Not sure what this number should actually be
         crit = 0.1,
         intelligence = 2,  -- TODO: Not sure what this number should actually be
@@ -35,6 +37,7 @@ return {
         name = "Wizard",
         health = 60,
         speed = 100,
+        size = 6,
         attack = 1, -- TODO: Not sure what this number should actually be
         crit = 0.1,
         intelligence = 4,  -- TODO: Not sure what this number should actually be
