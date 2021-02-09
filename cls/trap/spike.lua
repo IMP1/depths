@@ -41,7 +41,7 @@ function spike_trap:update(dt, scene)
         if self.animation.current_frame == DAMAGE_FRAME and not self.hit then
             self.hit = true
             local x, y = unpack(((self.trigger_position - vec2(1, 1)) * level.TILE_SIZE).data)
-            local obj = scene:get_object_at(x, y, 16, self)
+            local obj = scene:get_object_at(x, y, 8, self)
             if obj and obj.damage then
                 obj:damage(spike_trap.DAMAGE)
             end
