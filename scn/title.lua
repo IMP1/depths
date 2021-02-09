@@ -2,6 +2,7 @@ local scene_manager = require 'lib.conductor'
 local camera        = require 'lib.camera'
 local safeword      = require 'lib.safeword'
 local level         = require 'cls.level.level'
+local player        = require 'cls.player'
 local base_scene    = require 'scn._base'
 
 local scene = {}
@@ -50,9 +51,9 @@ function scene:load(...)
 end
 
 function scene:finalise()
-    for _, player in pairs(self.party) do
-        player.class = self.available_character_classes[player.class_id]
-        player.class_id = nil
+    for i, player_data in pairs(self.party) do
+        local class = self.available_character_classes[player_data.class_id]
+        self.party[i] = player.new(0, 0, 0, class, player_data.skin_id, player_data.gamepad)
     end
 end
 

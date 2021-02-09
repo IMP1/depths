@@ -37,12 +37,10 @@ function scene.new(party, depth)
     self.traps = {}
     self.enemies = {}
     -- TODO: Push gate graphic animation to close behind the players to animations
-    self.players = {}
+    self.players = party
     self.player_gamepads = {}
-    for _, p in pairs(party) do
-        local char = player.new(0, 0, 0, p.class, p.skin_id, p.gamepad)
-        self.player_gamepads[p.gamepad] = char
-        table.insert(self.players, char)
+    for _, p in pairs(self.players) do
+        self.player_gamepads[p.gamepad] = p
     end
 
     return self
