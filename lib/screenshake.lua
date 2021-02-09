@@ -27,6 +27,15 @@ function screenshake.remove_rumble(index)
     screenshake.add_rumble(-x, -y)
 end
 
+function screenshake.clear()
+    total_shake_x = 0
+    total_shake_y = 0
+    rumble_x = 0
+    rumble_y = 0
+    shakes = {}
+    rumbles = {}
+end
+
 function screenshake.update(dt)
     total_shake_x = rumble_x
     total_shake_y = rumble_y
