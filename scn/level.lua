@@ -60,7 +60,8 @@ end
 function scene:load()
     -- TODO: Change this to the be from the tileset
     -- TODO: This should therefor depend on the floor_type
-    love.graphics.setBackgroundColor(0.25, 0.25, 0.3)
+    -- 0.35294117647058826, 0.3058823529411765, 0.26666666666666666
+    love.graphics.setBackgroundColor(0.1, 0.1, 0.1)
 end
 
 function scene:finalise_level()
