@@ -40,7 +40,7 @@ function scene.new(party, depth)
     self.players = {}
     self.player_gamepads = {}
     for _, p in pairs(party) do
-        local char = player.new(0, 0, 0, p.class_id, p.skin_id, p.gamepad)
+        local char = player.new(0, 0, 0, p.class, p.skin_id, p.gamepad)
         self.player_gamepads[p.gamepad] = char
         table.insert(self.players, char)
     end
