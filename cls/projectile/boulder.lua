@@ -48,13 +48,13 @@ function boulder:update(dt, scene)
 end
 
 function boulder:draw(scene)
-    -- if self.destroyed then return end
+    if self.destroyed then return end
     local i, j = self:tile_position()
-    -- if scene.visible[j][i] then
+    if scene.visible[j][i] then
         local x, y = unpack(self.position.data)
         love.graphics.setColor(1, 1, 1)
         love.graphics.circle("fill", x, y, self.radius)
-    -- end
+    end
 end
 
 return boulder
