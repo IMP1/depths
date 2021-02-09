@@ -27,11 +27,19 @@ function spike_trap.new(x, y)
             loop = false,
             frame_durations = FRAME_DURATIONS,
         })
-        self.animation:reset()
     end
     self.hit = false
 
     return self
+end
+
+function spike_trap:trigger(scene)
+    if not self.animation:is_playing() then
+        self.animation:reset()
+        self.animation:start()
+        self.hit = false
+        self.triggered = true
+    end
 end
 
 function spike_trap:update(dt, scene)
@@ -49,15 +57,6 @@ function spike_trap:update(dt, scene)
         if self.animation.finished then
             self.triggered = false
         end
-    end
-end
-
-function spike_trap:trigger(scene)
-    if not self.animation:is_playing() then
-        self.animation:reset()
-        self.animation:start()
-        self.hit = false
-        self.triggered = true
     end
 end
 

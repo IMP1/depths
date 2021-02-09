@@ -19,10 +19,7 @@ function animation.new(options)
         table.insert(self.quads, love.graphics.newQuad(x, y, self.width, self.height, self.image:getWidth(), self.image:getHeight()))
     end
 
-    self.current_frame = 0
-    self.timer = 0
-    self.started = false
-    self.finished = false
+    self:reset()
 
     return self
 end
