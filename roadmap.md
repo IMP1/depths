@@ -1,7 +1,6 @@
 # Roadmap
 
   * Test trap behaviour and damage player
-  * Add player death and loss condition
   * Add PC classes, and set player stats (speed, HP, etc.)
   * Add player dealing damage (eg. to fake walls)
   * Add some better (but maybe still placeholder) graphics for tiles and characters
