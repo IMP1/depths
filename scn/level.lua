@@ -22,7 +22,7 @@ function scene.new(party, depth)
         min_height = 24,
         max_width  = 32,
         max_height = 32,
-        level_type = level.floor_types.CAVES,
+        level_type = level.floor_types.CAVES, -- TODO: Get from depth?
         depth      = depth or 1,
         seed       = os.time(),
     })
@@ -186,6 +186,8 @@ end
 -- TODO: HANDLE GAMEPAD REMOVAL
 
 function scene:next_level()
+    local next_scene = require('scn.level')
+    scene_manager.setScene(next_scene.new(self.players, self.map.depth + 1))
 end
 
 function scene:game_over()
@@ -206,6 +208,9 @@ function scene:keyPressed(key)
         for _, player in pairs(self.players) do
             player:damage(9999)
         end
+    end
+    if key == "l" then
+        self:next_level()
     end
 end
 
