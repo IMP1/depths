@@ -63,7 +63,6 @@ function animation:update(dt)
             else
                 self.current_frame = self.frame_count
                 self.finished = true
-                print("finished. current_frame = ", self.current_frame)
             end
         end
     end
