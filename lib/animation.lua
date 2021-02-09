@@ -14,9 +14,9 @@ function animation.new(options)
     self.width = self.image:getWidth() / options.frames_wide
     self.height = self.image:getHeight() / options.frames_high
     for n = 1, self.frame_count do
-        local x = (n % options.frames_wide) * self.width
-        local y = math.floor(n / options.frames_wide) * self.height
-        table.insert(self.quads, love.graphics.newQuad(x, y, self.width, self.height))
+        local x = ((n-1) % options.frames_wide) * self.width
+        local y = math.floor((n-1) / options.frames_wide) * self.height
+        table.insert(self.quads, love.graphics.newQuad(x, y, self.width, self.height, self.image:getWidth(), self.image:getHeight()))
     end
 
     self.current_frame = 0
@@ -54,8 +54,8 @@ function animation:update(dt)
     if not self.started then return end
     if self.finished then return end
     self.timer = self.timer + dt
-    if self.timer >= frame_duration(self.current_frame) then
-        self.timer = self.timer - frame_duration(self.current_frame)
+    if self.timer >= frame_duration(self, self.current_frame) then
+        self.timer = self.timer - frame_duration(self, self.current_frame)
         self.current_frame = self.current_frame + 1
         if self.current_frame >= self.frame_count then
             if self.looping then
@@ -63,6 +63,7 @@ function animation:update(dt)
             else
                 self.current_frame = self.frame_count
                 self.finished = true
+                print("finished. current_frame = ", self.current_frame)
             end
         end
     end
