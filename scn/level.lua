@@ -191,7 +191,6 @@ function scene:next_level()
 end
 
 function scene:game_over()
-    print("Game Over")
     local next_scene = require('scn.game_over')
     scene_manager.setScene(next_scene.new(self.players, self.map))
 end
