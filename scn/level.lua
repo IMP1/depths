@@ -196,20 +196,20 @@ function scene:game_over()
 end
 
 function scene:keyPressed(key)
-    if key == "r" then
+    if key == "r" and self.map then
         reveal_map(self)
     end
-    if key == "h" then
+    if key == "h" and self.map then
         for _, player in pairs(self.players) do
             player:heal(100)
         end
     end
-    if key == "k" then
+    if key == "k" and self.map then
         for _, player in pairs(self.players) do
             player:damage(9999)
         end
     end
-    if key == "l" then
+    if key == "l" and self.map then
         self:next_level()
     end
 end
