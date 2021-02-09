@@ -63,8 +63,15 @@ end
 
 function spike_trap:draw(scene)
     love.graphics.setColor(1, 1, 1)
-    local x, y = unpack(((self.trigger_position - vec2(1, 1)) * level.TILE_SIZE).data)
-    self.animation:draw(x, y)
+    local i, j = unpack(self.trigger_position.data)
+    if scene.visited[j][i] then
+        local x, y = unpack(((self.trigger_position - vec2(1, 1)) * level.TILE_SIZE).data)
+        if scene.visible[j][i] then
+            self.animation:draw(x, y)
+        else
+            love.graphics.draw(self.animation.image, self.animation.quads[1], x, y)
+        end
+    end
 end
 
 return spike_trap
