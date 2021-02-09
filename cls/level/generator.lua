@@ -536,16 +536,16 @@ function gen.ceiling_autotile_value(level, i, j)
     if level.floor_type == FLOOR_TYPE.CAVES then
         if gen.is_wall(level, i, j, true) then
             local binary_flag_sum = 0
-            if not gen.is_wall(level, i + 1, j, true) then
+            if not gen.is_wall(level, i + 1, j, true) and gen.get_tile(level, i + 1, j) ~= TILE.NONE then
                 binary_flag_sum = binary_flag_sum + 1
             end
-            if not gen.is_wall(level, i, j + 1, true) then
+            if not gen.is_wall(level, i, j + 1, true) and gen.get_tile(level, i, j + 1) ~= TILE.NONE then
                 binary_flag_sum = binary_flag_sum + 2
             end
-            if not gen.is_wall(level, i - 1, j, true) then
+            if not gen.is_wall(level, i - 1, j, true) and gen.get_tile(level, i - 1, j) ~= TILE.NONE then
                 binary_flag_sum = binary_flag_sum + 4
             end
-            if not gen.is_wall(level, i, j - 1, true) then
+            if not gen.is_wall(level, i, j - 1, true) and gen.get_tile(level, i, j - 1) ~= TILE.NONE then
                 binary_flag_sum = binary_flag_sum + 8
             end
             return binary_flag_sum + 16
