@@ -205,6 +205,11 @@ function scene:keyPressed(key)
             player:heal(100)
         end
     end
+    if key == "k" then
+        for _, player in pairs(self.players) do
+            player:damage(9999)
+        end
+    end
 end
 
 function scene:update(dt)
