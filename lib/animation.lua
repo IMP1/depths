@@ -54,7 +54,7 @@ function animation:update(dt)
     if self.timer >= frame_duration(self, self.current_frame) then
         self.timer = self.timer - frame_duration(self, self.current_frame)
         self.current_frame = self.current_frame + 1
-        if self.current_frame >= self.frame_count then
+        if self.current_frame > self.frame_count then
             if self.looping then
                 self.current_frame = 1
             else
