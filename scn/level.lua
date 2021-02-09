@@ -419,10 +419,13 @@ end
 function scene:draw_hud()
 end
 
-function scene:close()
+function scene:close(next_scene)
     if self.map_generator then
         self.map_generator:release()
         self.map_generator = nil
+    end
+    if not(next_scene and next_scene.name == "Menu") then
+        screenshake.clear()
     end
 end
 
