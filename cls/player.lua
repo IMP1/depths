@@ -8,16 +8,14 @@ player.__index = player
 local JOYSTICK_DEADZONE = 0.1
 
 function player.new(x, y, direction, class, skin, gamepad)
-    local name = ""
-    local radius = 6
     local mass = 80
-    local health = 100
     -- TODO: Get above values from class
-    local self = actor.new(name, x, y, direction, radius, mass, health)
+    local self = actor.new(class.name, x, y, direction, class.size, mass, class.health)
     setmetatable(self, player)
 
     self.gamepad = gamepad
     self.invulnerability_timer = 0
+    self.class = class
     -- TODO: Get below values from class
     self.speed = 100
 
@@ -83,6 +81,16 @@ function player:draw()
     local y2 = y + self.radius * math.sin(self.direction)
     love.graphics.circle("line", x, y, self.radius)
     love.graphics.line(x, y, x2, y2)
+    do -- Draw health bar
+        local width = 16
+        local colour = self.get_health_colour(self.current_health / self.max_health)
+        local x = x - width / 2
+        local y = y - self.radius - 4
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.rectangle("line", x, y, width, 4)
+        love.graphics.setColor(colour)
+        love.graphics.rectangle("fill", x + 1, y + 1, width * self.current_health / self.max_health - 2, 2)
+    end
 end
 
 return player
