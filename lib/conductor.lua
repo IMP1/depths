@@ -42,9 +42,9 @@ local current_scene = nil
 local scene_stack = {}
 local quit_on_no_scene = false
 
-local function closeScene()
+local function closeScene(next_scene)
     if current_scene then
-        current_scene:close()
+        current_scene:close(next_scene)
     end
 end
 
@@ -78,7 +78,7 @@ function conductor.clearTo(new_scene)
 end
 
 function conductor.setScene(new_scene)
-    closeScene()
+    closeScene(new_scene)
     current_scene = new_scene
     loadScene()
 end
@@ -91,7 +91,7 @@ end
 
 function conductor.popScene(n)
     for i = 1, (n or 1) do
-        closeScene()
+        closeScene(scene_stack[#scene_stack])
         current_scene = table.remove(scene_stack)
         if quit_on_no_scene and current_scene == nil then
             love.event.quit()
