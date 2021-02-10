@@ -565,7 +565,7 @@ function gen.create_traps(level)
     gen.update_status("Adding traps...")
     gen.create_boulder_traps(level)
     gen.create_spike_traps(level)
-    gen.create_swinging_traps(level)
+    -- gen.create_swinging_traps(level)
     gen.create_arrow_traps(level)
 end
 
