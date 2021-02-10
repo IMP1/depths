@@ -13,7 +13,7 @@ Actors can have states applied to them:
   * Poison (deal damage over time - heals undead)
   * X-ray vision (see through walls)
   * Blind (reduced vision down to 1-2 tiles)
-  * Drunk (motion is all backwards)
+  * Drunk/Dizzy (motion is all backwards)
   * Healing (gain health over time - does damage to undead)
   * Enraged
 
@@ -33,7 +33,13 @@ Ghost: Medium movement, cannot attack, can move through walls.
 
 ## Enemies
 
-Little gobliny-slimey monster things
+Little gobliny-slimey monster things (laarl) like spikey frogs that jump at you
+Magical monster (darkflies?) that spreads darkness, blinding enemies
+Mole-y/badger-y electric monster (skolatsi?) that paralyse things around them upon their death (but are otherwise kinda weak and won't attack players)
+Spider-y snake-y thing that spits poison
+
+Slug-like things that heal on impact (as a self-defence against undead)
+
 Ranged skeletons (throwing bones?)
 Summoners and their summons (summons die if summoner dies)
 
