@@ -14,4 +14,7 @@ function enemy.new(name, x, y, direction, radius, mass, health, speed)
     return self
 end
 
+function enemy:update(dt, scene)
+end
+
 return enemy
