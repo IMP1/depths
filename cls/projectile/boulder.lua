@@ -26,7 +26,7 @@ function boulder.new(x, y, dx, dy)
 end
 
 function boulder:hit(obj)
-    if obj then
+    if obj and obj.damage then
         obj:damage(DAMAGE)
         if obj.mass > MIN_MASS_TO_DESTROY then
             self:destroy()
