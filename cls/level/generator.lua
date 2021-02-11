@@ -619,11 +619,11 @@ function gen.create_boulder_trap(level, room)
         return
     end
 
-    local min_distance_from_exit = 3
+    local min_distance_from_exit = 5
     local too_near_exit = math.abs(trap_x - level.start_position.x)    + math.abs(trap_y - level.start_position.y)    < min_distance_from_exit or 
-                          math.abs(trap_x - level.end_position.x)      + math.abs(trap_y - level.end_position.y)      < min_distance_from_exit or 
-                          math.abs(boulder_x - level.start_position.x) + math.abs(boulder_y - level.start_position.y) < min_distance_from_exit or 
-                          math.abs(boulder_x - level.end_position.x)   + math.abs(boulder_y - level.end_position.y)   < min_distance_from_exit
+                          -- math.abs(trap_x - level.end_position.x)      + math.abs(trap_y - level.end_position.y)      < min_distance_from_exit or 
+                          math.abs(boulder_x - level.start_position.x) + math.abs(boulder_y - level.start_position.y) < min_distance_from_exit
+                          -- math.abs(boulder_x - level.end_position.x)   + math.abs(boulder_y - level.end_position.y)   < min_distance_from_exit
     if too_near_exit then 
         return 
     end
@@ -645,7 +645,7 @@ end
 
 function gen.create_spike_traps(level)
     local probability = 0.01
-    local min_distance_from_exit = 3
+    local min_distance_from_exit = 5
     for j, row in pairs(level.tiles) do
         for i, t in pairs(row) do
             local occupied = gen.is_trap_at(level, i, j)
@@ -712,7 +712,7 @@ end
 
 function gen.create_arrow_traps(level)
     local probability = 0.05
-    local min_distance_from_exit = 3
+    local min_distance_from_exit = 5
     for j, row in pairs(level.tiles) do
         for i, t in pairs(row) do
             if gen.is_floor(level, i, j) and math.random() < probability then
