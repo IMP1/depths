@@ -157,27 +157,29 @@ function scene:objects_with_mass()
         self.projectiles,
         self.item_drops,
     }
-    local n = 1
-    for _, list in ipairs(lists) do
-        if #list == 0 then 
-            n = n + 1 
-        else
-            break
-        end
-    end
+    local num_players = #self.players
+    local num_enemies = #self.enemies
+    local num_projectiles = #self.projectiles
+    local num_item_drops = #self.item_drops
+    local n = num_players + num_enemies + num_projectiles + num_item_drops
     local i = 1
     return function()
-        if lists[n] then
-            if lists[n][i] then
-                local obj = lists[n][i]
-                i = i + 1
-                if i > #lists[n] then
-                    n = n + 1
-                    i = 1
-                end
-                return obj
+        -- for i = 1, n do
+            local i_player = i
+            local i_enemy = i_player - num_players
+            local i_projectile = i_enemy - num_enemies
+            local i_item_drop = i_enemy - num_projectiles
+            i = i + 1
+            if i_player <= num_players then
+                return self.players[i_player]
+            elseif i_enemy <= num_enemies then
+                return self.enemies[i_enemy]
+            elseif i_projectile <= num_projectiles then
+                return self.projectiles[i_projectile]
+            elseif i_item_drop <= num_item_drops then
+                return self.item_drops[i_item_drop]
             end
-        end
+        -- end
     end
 end
 
