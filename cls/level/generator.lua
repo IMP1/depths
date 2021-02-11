@@ -179,6 +179,7 @@ function gen.create_rooms(level)
     gen.update_status("Adding rooms...")
     -- Add necessary rooms
     repeat
+        level.rooms = {}
         local start_room = gen.add_random_room(level, 4, 3, TILE.FLOOR_START)
         local end_room = gen.add_random_room(level, 4, 3, TILE.FLOOR_END)
         local boss_room = gen.add_random_room(level, 6, 5, TILE.FLOOR_BOSS)
