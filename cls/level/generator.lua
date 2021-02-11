@@ -4,6 +4,7 @@ local mst = require('lib.minimum_spanning_tree')
 
 local TILE = require('cls.level.level').tiles
 local FLOOR_TYPE = require('cls.level.level').floor_types
+local TILE_SIZE = require('cls.level.level').TILE_SIZE
 
 local seed = options.seed or os.time()
 math.randomseed(seed)
@@ -774,9 +775,28 @@ end
 
 function gen.create_enemies(level)
     gen.update_status("Adding enemies...")
-    
-    -- TODO: Add random enemies (based on room size?)
+    local probability = 0.1
+    for _, room in pairs(level.rooms) do 
+        if room.width > 0 and room.height > 0 then
+            if math.random() < probability then
+                gen.create_enemy_group(level, room)
+            end
+        end
+    end    
     -- TODO: Add boss in boss room
+end
+
+function gen.create_enemy_group(level, room)
+    local x = (room.x + math.random() * room.width) * TILE_SIZE
+    local y = (room.y + math.random() * room.height) * TILE_SIZE
+    -- TODO: Check not on trap trigger
+    -- TODO: Check not too near start_position
+    local r = math.random() * 2 * math.pi
+    local enemy = {
+        class = 'cls.enemy.laarl',
+        args = {x, y, r},
+    }
+    table.insert(level.enemies, enemy)
 end
 
 function gen.create_treasure(level)
